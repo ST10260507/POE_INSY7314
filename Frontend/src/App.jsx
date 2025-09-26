@@ -5,15 +5,11 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import Details from "./pages/Details";
 import Logout from "./pages/Logout";
 
-// src/App.jsx
-import SecurityDemo from "./SecurityDemo";
-
-export default function App() {
-  return <SecurityDemo />;
-}
+// If you want SecurityDemo as your home screen, import it here
+// import SecurityDemo from "./SecurityDemo";
 
 export default function App() {
   return (
@@ -23,15 +19,17 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route
-          path="/dashboard"
+        <Route path="/details" element={<Details />} />
+        {/* <Route
+          path="/details"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <Details />
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route path="/logout" element={<Logout />} />
+        {/* <Route path="/demo" element={<SecurityDemo />} /> */}
       </Routes>
     </Router>
   );

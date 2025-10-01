@@ -19,15 +19,24 @@ export default function DetailsForm() {
     e.preventDefault();
 
     try {
-      await API.post("/auth/details", {
-        fullName,
-        bankName,
-        accountNumber,
-        accountType,
-        swiftcode,
-        cardNumber,
-        expirationDate,
-      });
+      // await API.post("/auth/details", {
+      //   fullName,
+      //   bankName,
+      //   accountNumber,
+      //   accountType,
+      //   swiftcode,
+      //   cardNumber,
+      //   expirationDate,
+      // });
+        await API.post("/details", {
+          fullName,
+          bankName,
+          accountNumber,
+          accountType,
+          swiftcode,
+          cardNumber,
+          expirationDate,
+        });
 
       setMessage("Details submitted successfully!");
 

@@ -15,6 +15,9 @@ export default function Navbar() {
           <Link to="/logout">Logout</Link>
           <Link to="/details">Details</Link>
         </>
+                <>
+          <Link to="/transactions">Transactions</Link>
+        </>
     </nav>
   );
 }

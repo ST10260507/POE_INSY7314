@@ -1,4 +1,4 @@
-const Transaction = require("../models/Transaction");
+const Transaction = require("../models/Transactions");
 
 // Get all transactions (for employers/admin)
 exports.getAllTransactions = async (req, res) => {

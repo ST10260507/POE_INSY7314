@@ -1,114 +1,65 @@
-// const User = require("../models/User");
+// authMiddleware.js
 
-// // middleware to restrict routes by role
-// const requireRole = (role) => {
-//   return async (req, res, next) => {
-//     try {
-//       const user = await User.findById(req.user.id);
-//       if (!user) return res.status(401).json({ message: "user not found" });
+const jwt = require("jsonwebtoken");
 
-//       // check if admin
-//       if (role === "admin") {
-//         const isAdmin = user.roles.some(r => r.role === "admin");
-//         if (!isAdmin) return res.status(403).json({ message: "forbidden" });
-//         return next();
-//       }
+// Define ROLES object for type safety and easy reference
+const ROLES = {
+  ADMIN: 'admin',
+  EMPLOYER: 'employer', 
+  USER: 'user',
+};
 
-//       // check for editor or reader in context of blog
-//       const blogId = req.params.blogId || req.body.blogId;
-//       const hasRole = user.roles.some(r =>
-//         r.role === role && (!blogId || r.blogId?.toString() === blogId)
-//       );
+// Middleware to check if the user has one of the required roles
+const requireRole = (requiredRole) => {
+  return (req, res, next) => {
+    // This assumes req.user has been populated by the 'protect' middleware 
+    // and contains a 'role' property (which your JWT payload must include).
+    const userRole = req.user?.role; 
+    
+    if (userRole === requiredRole) {
+      return next();
+    }
+    
+    // Forbidden if role doesn't match
+    res.status(403).json({ message: "Forbidden: Insufficient role" });
+  };
+};
 
-//       // admins override everything
-//       if (!hasRole && !user.roles.some(r => r.role === "admin")) {
-//         return res.status(403).json({ message: "forbidden" });
-//       }
+/**
+ * @desc Middleware to verify JWT and attach user info (decoded payload) to req.user.
+ */
+const protect = (req, res, next) => {
+  let token;
 
-//       next();
-//     } catch (err) {
-//       res.status(500).json({ error: "server error" });
-//     }
-//   };
-// };
+  // Check for the "Bearer <token>" format in the Authorization header
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    try {
+      // Get token from header (removes "Bearer ")
+      token = req.headers.authorization.split(" ")[1];
 
-// module.exports = { requireRole };
+      // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-// // import jwt from "jsonwebtoken";
+      // Attach the decoded token payload (which MUST include 'role' for requireRole to work)
+      req.user = decoded;
 
-// // // 🔑 Verify JWT and attach user info
-// // export const protect = (req, res, next) => {
-// //   const authHeader = req.headers.authorization;
+      // Continue to the next middleware or controller
+      return next(); // Use return here to ensure only one response/call to next()
+    } catch (error) {
+      console.error(error);
+      // Token is invalid or expired
+      return res.status(401).json({ message: "Not authorized, token failed" });
+    }
+  }
 
-// //   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-// //     return res.status(401).json({ message: "Unauthorized: No token provided" });
-// //   }
+  if (!token) {
+    // No token provided in the header
+    return res.status(401).json({ message: "Not authorized, no token" });
+  }
+};
 
-// //   const token = authHeader.split(" ")[1];
-
-// //   try {
-// //     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-// //     req.user = decoded; // { sub: userId, role: 'reader' | 'author' | ... }
-// //     next();
-// //   } catch (err) {
-// //     return res.status(403).json({ message: "Token invalid or expired" });
-// //   }
-// // };
-
-// // // 👑 Require a specific role
-// // export const requireRole = (roles) => {
-// //   // roles can be a string or an array of roles
-// //   return (req, res, next) => {
-// //     const userRole = req.user?.role;
-// //     if (!userRole || ![].concat(roles).includes(userRole)) {
-// //       return res.status(403).json({ message: "Forbidden: Insufficient role" });
-// //     }
-// //     next();
-// //   };
-// // };
-
-// // // ✍️ Require self (user owns the resource) OR a specific role
-// // export const requireSelfOrRole = (param = "id", roles = []) => {
-// //   // param = name of the route param containing the user ID
-// //   return (req, res, next) => {
-// //     const userId = req.user?.sub;
-// //     const userRole = req.user?.role;
-
-// //     if (!userId) {
-// //       return res.status(401).json({ message: "Unauthorized" });
-// //     }
-
-// //     // ✅ allow if user owns the resource
-// //     if (req.params[param] && req.params[param] === userId.toString()) {
-// //       return next();
-// //     }
-
-// //     // ✅ allow if user has one of the roles
-// //     if ([].concat(roles).includes(userRole)) {
-// //       return next();
-// //     }
-
-// //     return res.status(403).json({ message: "Forbidden: Not owner or role" });
-// //   };
-// // };
-
-
-// // const jwt = require("jsonwebtoken");
-
-// // const protect = (req, res, next) => {
-// //   const authHeader = req.headers.authorization;
-// //   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-// //     return res.status(401).json({ message: "Unauthorized" });
-// //   }
-
-// //   const token = authHeader.split(" ")[1];
-// //   try {
-// //     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-// //     req.user = decoded; // Attach user info to request
-// //     next();
-// //   } catch (err) {
-// //     res.status(403).json({ message: "Token invalid or expired" });
-// //   }
-// // };
-
-// // module.exports = { protect };
+// Export all three items correctly for the router to use destructuring
+module.exports = { protect, requireRole, ROLES };

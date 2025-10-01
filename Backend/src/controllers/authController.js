@@ -1,119 +1,103 @@
-// const jwt = require("jsonwebtoken");
-// const User = require("../models/User");
-// const { validationResult } = require("express-validator");
+// src/controllers/authController.js
 
-// // function to generate jwt token for a logged in user
-// const generateToken = (user) =>
-//   jwt.sign(
-//     { id: user._id, email: user.email, roles: user.roles }, // embed roles inside the token
-//     process.env.JWT_SECRET,
-//     { expiresIn: "1h" } // expire after 1 hour
-//   );
+const jwt = require("jsonwebtoken");
+const User = require("../models/User"); // Ensure User model exists and is correct
+const { validationResult } = require("express-validator");
+// You will also need to have 'bcryptjs' installed for the User model's password hashing
 
-// // register a reader (default role)
-// exports.registerReader = async (req, res) => {
-//   const errors = validationResult(req);
-//   if (!errors.isEmpty())
-//     return res.status(400).json({ message: "invalid input", errors: errors.array() });
+// --- Helper Function ---
+// function to generate jwt token for a logged in user
+const generateToken = (user) => {
 
-//   const { email, password } = req.body;
-//   try {
-//     const existing = await User.findOne({ email });
-//     if (existing) return res.status(400).json({ message: "email already exists" });
+  const role = Array.isArray(user.roles) ? user.roles[0]?.role : user.role;
 
-//     const user = await User.create({
-//       email,
-//       password,
-//       roles: [{ blogId: null, role: "reader" }]
-//     });
+  return jwt.sign(
+    { id: user._id, email: user.email, role: role }, 
+    process.env.JWT_SECRET,
+    { expiresIn: "1h" }
+  );
+}
 
-//     const token = generateToken(user);
-//     res.status(201).json({ message: "reader registered", token });
-//   } catch (err) {
-//     res.status(500).json({ error: "server error: " + err });
-//   }
-// };
+exports.register = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({ message: "Invalid input", errors: errors.array() });
 
-// // register an editor (only admins can do this)
-// exports.registerEditor = async (req, res) => {
-//   const errors = validationResult(req);
-//   if (!errors.isEmpty())
-//     return res.status(400).json({ message: "invalid input", errors: errors.array() });
+  const { email, password, fullName } = req.body; // Added fullName based on User model
+  try {
+    const existing = await User.findOne({ email });
+    if (existing) return res.status(400).json({ message: "Email already exists" });
 
-//   try {
-//     const adminUser = await User.findById(req.user.id);
-//     if (!adminUser || !adminUser.roles.some(r => r.role === "admin")) {
-//       return res.status(403).json({ message: "only admins can create editors" });
-//     }
+    // Use default role 'user' (or 'reader' if you prefer)
+    const user = await User.create({
+      email,
+      password,
+      fullName: fullName || 'User', // Use fullName if provided
+      role: 'user' 
+    });
 
-//     const { email, password } = req.body;
-//     const existing = await User.findOne({ email });
-//     if (existing) return res.status(400).json({ message: "email already exists" });
+    const token = generateToken(user);
+    res.status(201).json({ message: "User registered", token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error during registration" });
+  }
+};
 
-//     const editorUser = await User.create({
-//       email,
-//       password,
-//       roles: [{ blogId: null, role: "editor" }]
-//     });
+// 1.2. exports.adminCreateUser (Matches the 'adminCreateUser: registerAdmin' alias)
+// This logic is designed for an admin creating a user with the 'admin' role.
+exports.adminCreateUser = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+        return res.status(400).json({ message: "Invalid input", errors: errors.array() });
 
-//     const token = generateToken(editorUser);
-//     res.status(201).json({ message: "editor registered", token });
-//   } catch (err) {
-//     res.status(500).json({ error: "server error: " + err });
-//   }
-// };
+    try {
+        // Validation check for existing admin is now handled by the protect and requireRole middleware 
+        // on the route itself, so we just check for email existence and create the admin user.
 
-// // register an admin (first admin can self-register, others only by existing admins)
-// exports.registerAdmin = async (req, res) => {
-//   const errors = validationResult(req);
-//   if (!errors.isEmpty())
-//     return res.status(400).json({ message: "invalid input", errors: errors.array() });
+        const { email, password, fullName } = req.body;
+        const existing = await User.findOne({ email });
+        if (existing) return res.status(400).json({ message: "Email already exists" });
 
-//   try {
-//     const { email, password } = req.body;
-//     const adminExists = await User.exists({ "roles.role": "admin" });
+        const adminUser = await User.create({
+            email,
+            password,
+            fullName: fullName || 'Admin',
+            role: 'admin' // Force the 'admin' role
+        });
 
-//     // if admins already exist, only another admin can create one
-//     if (adminExists) {
-//       const requestingUser = await User.findById(req.user.id);
-//       const isAdmin = requestingUser?.roles?.some(r => r.role === "admin");
-//       if (!isAdmin) {
-//         return res.status(403).json({ message: "only admins can create admins" });
-//       }
-//     }
+        const token = generateToken(adminUser);
+        res.status(201).json({ message: "Admin registered successfully", token });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error during admin registration" });
+    }
+};
 
-//     const existing = await User.findOne({ email });
-//     if (existing) return res.status(400).json({ message: "email already exists" });
+// 1.3. exports.login (Matches the 'login' function)
+exports.login = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({ message: "Invalid input", errors: errors.array() });
 
-//     const adminUser = await User.create({
-//       email,
-//       password,
-//       roles: [{ blogId: null, role: "admin" }]
-//     });
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    
+    // Check if user exists and password matches (using the method from the User model)
+    if (!user || !(await user.comparePassword(password))) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
 
-//     const token = generateToken(adminUser);
-//     res.status(201).json({ message: "admin registered", token });
-//   } catch (err) {
-//     res.status(500).json({ error: "server error: " + err });
-//   }
-// };
+    const token = generateToken(user);
+    res.json({ token, role: user.role });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error during login" });
+  }
+};
 
-// // login user and return jwt
-// exports.login = async (req, res) => {
-//   const errors = validationResult(req);
-//   if (!errors.isEmpty())
-//     return res.status(400).json({ message: "invalid input", errors: errors.array() });
-
-//   const { email, password } = req.body;
-//   try {
-//     const user = await User.findOne({ email });
-//     if (!user || !(await user.comparePassword(password))) {
-//       return res.status(400).json({ message: "invalid credentials" });
-//     }
-
-//     const token = generateToken(user);
-//     res.json({ token });
-//   } catch (err) {
-//     res.status(500).json({ error: "server error" });
-//   }
-// };
+// You can optionally export the other functions if they are used elsewhere:
+// exports.registerReader = exports.register; 
+// exports.registerAdmin = exports.adminCreateUser; 
+// exports.registerEditor = (req, res) => res.status(501).json({ message: "Editor registration not yet supported" });

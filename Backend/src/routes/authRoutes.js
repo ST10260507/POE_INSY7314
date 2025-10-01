@@ -1,128 +1,72 @@
-// const express = require("express");
-// const router = express.Router();
+// src/routes/authRoutes.js
 
-// const { body, validationResult } = require("express-validator");
-// const { registerLimiter, loginLimiter } = require("../middleware/rateLimiter");
+const express = require("express");
+const router = express.Router();
 
-// const {
-//   register: registerUser,
-//   adminCreateUser: registerAdmin,
-//   login,
-// } = require("../controllers/authController");
+// Required for input validation
+const { body, validationResult } = require("express-validator"); 
 
-// const { protect } = require("../middleware/authMiddleware");
-// const { requireRole, ROLES } = require("../middleware/roles");
+// --- CONTROLLER IMPORTS (You must create these functions in authController.js) ---
+const {
+  register: registerUser,
+  adminCreateUser: registerAdmin,
+  login,
+} = require("../controllers/authController");
 
-// // Validation helpers
-// const emailValidator = body("email")
-//   .isEmail()
-//   .withMessage("Valid email required")
-//   .normalizeEmail();
+// --- MIDDLEWARE IMPORTS ---
+const { protect, requireRole, ROLES } = require("../middleware/authMiddleware");
 
-// const passwordValidator = body("password")
-//   .isLength({ min: 8 })
-//   .withMessage("Password must be at least 8 chars")
-//   .trim();
+// --- VALIDATION HELPERS ---
+const emailValidator = body("email")
+  .isEmail()
+  .withMessage("Valid email required")
+  .normalizeEmail();
 
-// const handleValidation = (req, res, next) => {
-//   const errors = validationResult(req);
-//   if (!errors.isEmpty())
-//     return res.status(400).json({ errors: errors.array() });
-//   next();
-// };
+const passwordValidator = body("password")
+  .isLength({ min: 8 })
+  .withMessage("Password must be at least 8 chars")
+  .trim();
 
-// // Public: register user
-// router.post(
-//   "/register-user",
-//   registerLimiter,
-//   emailValidator,
-//   passwordValidator,
-//   handleValidation,
-//   registerUser
-// );
+const handleValidation = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+    return res.status(400).json({ errors: errors.array() });
+  next();
+};
 
-// // Admin-only: register another user
-// router.post(
-//   "/register-admin",
-//   protect,
-//   requireRole(ROLES.ADMIN),
-//   registerLimiter,
-//   emailValidator,
-//   passwordValidator,
-//   handleValidation,
-//   registerAdmin
-// );
+// --- ROUTE DEFINITIONS ---
 
-// // Public: login
-// router.post(
-//   "/login",
-//   loginLimiter,
-//   emailValidator,
-//   body("password").notEmpty().withMessage("Password required").trim(),
-//   handleValidation,
-//   login
-// );
+// POST /api/auth/register-user (Public: register a standard user)
+router.post(
+  "/register-user",
+  // registerLimiter, // Add this back once you create the middleware
+  emailValidator,
+  passwordValidator,
+  handleValidation,
+  registerUser
+);
 
-// module.exports = router;
+// POST /api/auth/register-admin (Admin-only: register another user/admin)
+router.post(
+  "/register-admin",
+  protect,
+  requireRole(ROLES.ADMIN),
+  // registerLimiter, // Add this back once you create the middleware
+  emailValidator,
+  passwordValidator,
+  handleValidation,
+  registerAdmin
+);
 
+// POST /api/auth/login (Public: login)
+router.post(
+  "/login",
+  // loginLimiter, // Add this back once you create the middleware
+  emailValidator,
+  body("password").notEmpty().withMessage("Password required").trim(),
+  handleValidation,
+  login
+);
 
-// // import express from "express";
-// // import { body } from "express-validator";
-// // import { register, login, createUserWithRole } from "../controllers/authController.js";
-// // import { protect, requireRole, requireSelfOrRole } from "../middleware/authMiddleware.js";
-
-// // const router = express.Router();
-
-// // // Register & login
-// // router.post("/register", body("email").isEmail(), body("password").isLength({ min: 6 }), register);
-// // router.post("/login", body("email").isEmail(), body("password").exists(), login);
-
-// // // Admin-only: create user with specific role
-// // router.post("/create", protect, requireRole("admin"), createUserWithRole);
-
-// // // Update own profile or admin
-// // router.put("/:id", protect, requireSelfOrRole("id", ["admin"]), (req, res) => {
-// //   res.json({ message: "Profile updated" });
-// // });
-
-// // export default router;
-
-
-// // import express from "express";
-// // import { protect, requireRole, requireSelfOrRole } from "../middleware/authMiddleware.js";
-// // import { createUserWithRole } from "../controllers/authController.js";
-
-// // const router = express.Router();
-
-// // // Admin-only: create a user with specific role
-// // router.post("/create", protect, requireRole("admin"), createUserWithRole);
-
-// // // Example: user can update their own profile OR an admin can update anyone’s
-// // router.put("/:id", protect, requireSelfOrRole("id", ["admin"]), (req, res) => {
-// //   res.json({ message: "Profile updated" });
-// // });
-
-// // export default router;
-
-
-// // // const router = require("express").Router();
-// // // const { registerRules, loginRules } = require("../utils/validators");
-// // // const authController = require("../controllers/authController");
-// // // const rateLimit = require("express-rate-limit");
-
-// // // // Brute-force limiter for login
-// // // const loginLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 20 });
-
-// // // router.post("/register", registerRules, authController.register);
-// // // router.post("/login", loginLimiter, loginRules, authController.login);
-
-// // // module.exports = router;
-
-// // // // const express = require("express");
-// // // // const { register, login } = require("../controllers/authController");
-// // // // const router = express.Router();
-
-// // // // router.post("/register", register);
-// // // // router.post("/login", login);
-
-// // // // module.exports = router;
+// Export the router for use in app.js
+module.exports = router;

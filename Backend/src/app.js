@@ -4,11 +4,10 @@ const cors = require('cors');
 const helmet = require('helmet');
 const dotenv = require('dotenv');
 
-const authRoutes = require("./routes/authRoutes");  
+// --- IMPORTS ---
+const authRoutes = require("./routes/authRoutes");  
 const detailsRoutes = require("./routes/detailsRoutes"); 
-const transactionsRoutes = require("./routes/transactionsRoutes");
-
-
+const transactionsRoute = require("./routes/transactionsRoute"); 
 
 dotenv.config();
 
@@ -20,11 +19,26 @@ app.use(express.json());
 
 // test route
 app.get('/test', (req, res) => {
-  res.json({ message: 'This is the JSON response' });
+  res.json({ message: 'This is the JSON response' });
 });
 
-app.use("/api/auth", authRoutes);       // for login/register
-app.use("/api/details", detailsRoutes); // for banking details
-app.use("/api/transactions", transactionsRoutes);
+// --- ADDED ROOT ROUTE HANDLER ---
+app.get('/', (req, res) => {
+    // Provides a helpful message for anyone visiting the base URL
+    res.status(200).json({ 
+        message: 'Welcome to the Backend API!',
+        endpoints: [
+            '/api/auth', 
+            '/api/details', 
+            '/api/transactions'
+        ]
+    });
+});
+// ---------------------------------
+
+// --- ROUTER CONNECTIONS ---
+app.use("/api/auth", authRoutes); 
+app.use("/api/details", detailsRoutes); 
+app.use("/api/transactions", transactionsRoute); 
 
 module.exports = app;

@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 // Define ROLES object for type safety and easy reference
 const ROLES = {
   ADMIN: 'admin',
-  EMPLOYER: 'employer', 
+  EMPLOYER: 'employee', 
   USER: 'user',
 };
 

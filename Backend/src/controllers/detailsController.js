@@ -8,7 +8,7 @@ exports.addDetails = async (req, res) => {
       bankName,
       accountNumber,
       accountType,
-      swiftcode,   // fixed spelling
+      swiftcode,   
       cardNumber,
       expirationDate,
     } = req.body;

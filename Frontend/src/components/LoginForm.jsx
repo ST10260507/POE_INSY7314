@@ -7,16 +7,17 @@ import "./LoginForm.css";
 
 
 export default function LoginForm() {
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [idNumber, setIdNumber] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await API.post("/auth/login", { email, password });
+      const res = await API.post("/auth/login", { fullName, email, password, idNumber,accountNumber });
       localStorage.setItem("token", res.data.token);
       setMessage("Login successful");
       navigate("/dashboard");
@@ -29,10 +30,53 @@ export default function LoginForm() {
     <form onSubmit={handleSubmit}>
       <h2>Login</h2>
       {location.state?.message && <p>{location.state.message}</p>}
+      <input placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
       <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      <input placeholder="Id Number" value={idNumber} onChange={(e) => setIdNumber(e.target.value)} />
+      <input placeholder="Account Number" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} />
       <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
       <button type="submit">Login</button>
       {message && <p>{message}</p>}
     </form>
   );
 }
+
+
+// // src/components/LoginForm.jsx
+// import { useState } from "react";
+// import { useNavigate, useLocation } from "react-router-dom";
+// import API from "../services/api";
+// // Example in LoginForm.jsx
+// import "./LoginForm.css";
+
+
+// export default function LoginForm() {
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [message, setMessage] = useState("");
+//   const navigate = useNavigate();
+//   const location = useLocation();
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     try {
+//       const res = await API.post("/auth/login", { email, password });
+//       localStorage.setItem("token", res.data.token);
+//       setMessage("Login successful");
+//       navigate("/dashboard");
+//     } catch {
+//       setMessage("Invalid credentials");
+//     }
+//   };
+
+//   return (
+//     <form onSubmit={handleSubmit}>
+//       <h2>Login</h2>
+//       {location.state?.message && <p>{location.state.message}</p>}
+//       <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+//       <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+//       <button type="submit">Login</button>
+//       {message && <p>{message}</p>}
+//     </form>
+//   );
+// }

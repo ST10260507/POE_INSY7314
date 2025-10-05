@@ -3,7 +3,9 @@ import api from "../services/api";
 import { useState } from "react";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
+    const [FullName, setFullName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [idNumber, setIdNumber] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
@@ -11,12 +13,8 @@ export default function Login() {
     e.preventDefault();
     setError("");
 
-    if (!email || !password) {
-      setError("Email and password are required.");
-      return;
-    }
-    if (!isValidEmail(email)) {
-      setError("Invalid email format.");
+    if (!accountNumber || !password || !idNumber) {
+      setError("All credentials must be filled in.");
       return;
     }
     if (!isStrongPassword(password)) {
@@ -37,8 +35,20 @@ export default function Login() {
     <form onSubmit={handleLogin}>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <input
-        type="email"
-        placeholder="Email"
+        type="FullName"
+        placeholder="Full Name"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="idNumber"
+        placeholder="ID Number"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="accountNumber"
+        placeholder="Account Number"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />

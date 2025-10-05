@@ -25,4 +25,24 @@ detailsSchema.methods.toJSON = function () {
   return obj;
 };
 
+const transactionSchema = new mongoose.Schema({
+  fullName: String,
+  bankName: String,
+  accountNumber: String,
+  accountType: String,
+  swiftcode: String,
+  cardNumber: String,
+  expirationDate: String,
+  createdAt: { type: Date, default: Date.now },
+});
+
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true },
+  password: { type: String, required: true },
+  // Add transactions as an array of subdocuments
+  transactions: [transactionSchema],
+});
+
+module.exports = mongoose.model("User", userSchema);
+
 module.exports = mongoose.model("Details", detailsSchema);

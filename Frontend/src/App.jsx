@@ -22,7 +22,6 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/details" element={<Details />} />
         <Route path="/transactions" element={<Transactions />} />
-        {/* Example of a protected route */}
         {/* <Route
           path="/details"
           element={

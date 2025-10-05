@@ -1,72 +1,102 @@
-// src/routes/authRoutes.js
-
+// routes/authRoutes.js
 const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const User = require("../models/User.js"); // your existing User model
+
 const router = express.Router();
 
-// Required for input validation
-const { body, validationResult } = require("express-validator"); 
+// ==========================
+// REGISTER A NEW USER
+// ==========================
+router.post("/register", async (req, res) => {
+  try {
+    const { fullName, idNumber, accountNumber, password } = req.body;
 
-// --- CONTROLLER IMPORTS (You must create these functions in authController.js) ---
-const {
-  register: registerUser,
-  adminCreateUser: registerAdmin,
-  login,
-} = require("../controllers/authController");
+    // Check for missing fields
+    if (!fullName || !idNumber || !accountNumber || !password) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
 
-// --- MIDDLEWARE IMPORTS ---
-const { protect, requireRole, ROLES } = require("../middleware/authMiddleware");
+    // Check for existing user by ID number or account number
+    const existingUser = await User.findOne({
+      $or: [{ idNumber }, { accountNumber }],
+    });
 
-// --- VALIDATION HELPERS ---
-const emailValidator = body("email")
-  .isEmail()
-  .withMessage("Valid email required")
-  .normalizeEmail();
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
 
-const passwordValidator = body("password")
-  .isLength({ min: 8 })
-  .withMessage("Password must be at least 8 chars")
-  .trim();
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-const handleValidation = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty())
-    return res.status(400).json({ errors: errors.array() });
-  next();
-};
+    // Create new user document
+    const newUser = new User({
+      fullName,
+      idNumber,
+      accountNumber,
+      password: hashedPassword,
+      role: "user", // set default role
+    });
 
-// --- ROUTE DEFINITIONS ---
+    // Save to MongoDB
+    await newUser.save();
 
-// POST /api/auth/register-user (Public: register a standard user)
-router.post(
-  "/register-user",
-  // registerLimiter, // Add this back once you create the middleware
-  emailValidator,
-  passwordValidator,
-  handleValidation,
-  registerUser
-);
+    res.status(201).json({
+      message: "User registered successfully",
+      user: {
+        fullName: newUser.fullName,
+        idNumber: newUser.idNumber,
+        accountNumber: newUser.accountNumber,
+        role: newUser.role,
+      },
+    });
+  } catch (err) {
+    console.error("Registration error:", err);
+    res.status(500).json({ message: "Server error during registration" });
+  }
+});
 
-// POST /api/auth/register-admin (Admin-only: register another user/admin)
-router.post(
-  "/register-admin",
-  protect,
-  requireRole(ROLES.ADMIN),
-  // registerLimiter, // Add this back once you create the middleware
-  emailValidator,
-  passwordValidator,
-  handleValidation,
-  registerAdmin
-);
+// ==========================
+// LOGIN EXISTING USER
+// ==========================
+router.post("/login", async (req, res) => {
+  try {
+    const { idNumber, password } = req.body;
 
-// POST /api/auth/login (Public: login)
-router.post(
-  "/login",
-  // loginLimiter, // Add this back once you create the middleware
-  emailValidator,
-  body("password").notEmpty().withMessage("Password required").trim(),
-  handleValidation,
-  login
-);
+    // Find user by idNumber
+    const user = await User.findOne({ idNumber });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
 
-// Export the router for use in app.js
+    // Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET || "your_jwt_secret",
+      { expiresIn: "1h" }
+    );
+
+    res.json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        idNumber: user.idNumber,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error during login" });
+  }
+});
+
 module.exports = router;

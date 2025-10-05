@@ -7,7 +7,7 @@ const bcrypt = require("bcryptjs"); // Used for password hashing
 const roleSchema = new mongoose.Schema(
   {
     // The role field must match the expected roles in your authMiddleware's ROLES object
-    role: { type: String, enum: ["admin", "employee", "user"], required: true } 
+    role: { type: String, enum: ["admin", "user"], required: true } 
   },
   { _id: false } // We don't need Mongoose to generate an ID for each role object
 );
@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   fullName: { type: String, required: true },
   email: { type: String, unique: true, required: true, lowercase: true, trim: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ["admin", "employee", "user"], default: "user" },
+  role: { type: String, enum: ["admin", "user"], default: "user" },
   idNumber: { type: String, sparse: true, unique: true }, 
   accountNumber: { type: String, sparse: true },
   lastLogin: { type: Date },
@@ -52,4 +52,4 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model("User", userSchema,"users");

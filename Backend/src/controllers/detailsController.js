@@ -1,20 +1,8 @@
-const Details = require("../models/Details");
+const User = require("../models/User");
 
-// Save banking details
-exports.addDetails = async (req, res) => {
+exports.addTransaction = async (req, res) => {
   try {
     const {
-      fullName,
-      bankName,
-      accountNumber,
-      accountType,
-      swiftcode,   
-      cardNumber,
-      expirationDate,
-    } = req.body;
-
-    const details = new Details({
-      userId: req.user.id, // comes from protect middleware
       fullName,
       bankName,
       accountNumber,
@@ -22,12 +10,36 @@ exports.addDetails = async (req, res) => {
       swiftcode,
       cardNumber,
       expirationDate,
-    });
+    } = req.body;
 
-    await details.save();
-    res.status(201).json({ message: "Details saved successfully", details });
+    // find the logged-in user (assuming you have user ID in req.user.id)
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // create a transaction object
+    const transaction = {
+      fullName,
+      bankName,
+      accountNumber,
+      accountType,
+      swiftcode,
+      cardNumber,
+      expirationDate,
+    };
+
+    // push to user's transactions array
+    user.transactions.push(transaction);
+    await user.save();
+
+    res.status(201).json({
+      message: "Transaction saved successfully",
+      transaction,
+    });
   } catch (err) {
-    console.error("Error saving details:", err);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error saving transaction:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };

@@ -1,9 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { protect } = require("../middleware/authMiddleware");
-const { addDetails } = require("../controllers/detailsController");
+const { addTransaction } = require("../controllers/detailsController");
+const { protect } = require("../middleware/authMiddleware"); // ensures user is logged in
 
-// POST /api/details -> save user banking details
-router.post("/", protect, addDetails);
+router.post("/details", protect, addTransaction);
 
 module.exports = router;

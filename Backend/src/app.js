@@ -18,9 +18,9 @@ app.use(cors());
 app.use(express.json());
 
 // test route
-app.get('/test', (req, res) => {
-  res.json({ message: 'This is the JSON response' });
-});
+// app.get('/test', (req, res) => {
+//   res.json({ message: 'This is the JSON response' });
+// });
 
 // --- ADDED ROOT ROUTE HANDLER ---
 app.get('/', (req, res) => {

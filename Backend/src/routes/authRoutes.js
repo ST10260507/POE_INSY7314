@@ -2,18 +2,16 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User.js"); // your existing User model
+const User = require("../models/User.js"); 
 
 const router = express.Router();
 
-// ==========================
-// REGISTER A NEW USER
-// ==========================
+//reg a user
 router.post("/register", async (req, res) => {
   try {
     const { fullName, idNumber, accountNumber, password } = req.body;
 
-    // Check for missing fields
+//check missing fields
     if (!fullName || !idNumber || !accountNumber || !password) {
       return res.status(400).json({ message: "All fields are required." });
     }
@@ -57,9 +55,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// ==========================
-// LOGIN EXISTING USER
-// ==========================
+//login
 router.post("/login", async (req, res) => {
   try {
     const { idNumber, password } = req.body;

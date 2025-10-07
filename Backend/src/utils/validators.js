@@ -1,35 +1,58 @@
-// // backend/src/utils/validators.js
-// const { body } = require("express-validator");
+const { body } = require("express-validator");
 
-// // Shared password strength rule (mirrors front-end, but authoritative here)
-// const passwordStrength = body("password")
-//   .isString()
-//   .isLength({ min: 8 }).withMessage("Password must be at least 8 characters")
-//   .matches(/[A-Za-z]/).withMessage("Password must include a letter")
-//   .matches(/\d/).withMessage("Password must include a number");
+// Regex definitions
+const fullNameRegex = /^[A-Za-z\s]+$/;      // letters and spaces only
+const idNumberRegex = /^\d{13}$/;           // exactly 13 digits
+const accountNumberRegex = /^\d+$/;         // numbers only
+const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/; // min 8 chars, letters and numbers
 
-// // Email for register & login (we accept email on login; if you also support username, see below)
-// const emailField = body("email")
-//   .isEmail().withMessage("Email must be valid")
-//   .normalizeEmail();
+// Full Name validation
+const fullNameField = body("fullName")
+  .trim()
+  .matches(fullNameRegex)
+  .withMessage("Full name must contain letters and spaces only")
+  .isLength({ min: 3, max: 50 })
+  .withMessage("Full name must be between 3 and 50 characters")
+  .escape();
 
-// // optional: username for register
-// const usernameField = body("username")
-//   .optional()
-//   .isLength({ min: 3, max: 40 }).withMessage("Username must be 3–40 chars")
-  
-//   .isAlphanumeric().withMessage("Username must be alphanumeric");
+// ID Number validation
+const idNumberField = body("idNumber")
+  .trim()
+  .matches(idNumberRegex)
+  .withMessage("ID number must be exactly 13 digits")
+  .escape();
 
-// // Register rules: require email + password (+ optional username)
-// const registerRules = [emailField, usernameField, passwordStrength];
+// Account Number validation
+const accountNumberField = body("accountNumber")
+  .trim()
+  .matches(accountNumberRegex)
+  .withMessage("Account number must contain only numbers")
+  .isLength({ min: 4, max: 20 })
+  .withMessage("Account number must be between 4 and 20 digits")
+  .escape();
 
-// // Login rules: require email and a non-empty password
-// // NOTE: Do NOT .escape() password on the server — it changes the string and breaks bcrypt.
-// // Trimming is fine if you’ve documented that passwords cannot start/end with spaces.
-// // Many apps choose to NOT trim to avoid altering user input. Below: no trim.
-// const loginRules = [
-//   emailField,
-//   body("password").isString().notEmpty().withMessage("Password is required"),
-// ];
+// Password validation
+const passwordStrength = body("password")
+  .isString()
+  .matches(passwordRegex)
+  .withMessage("Password must be at least 8 characters and include at least one letter and one number")
+  .not()
+  .matches(/<|>|"|'/)
+  .withMessage("Invalid characters in password");
 
-// module.exports = { registerRules, loginRules };
+// Register rules
+const registerRules = [fullNameField, idNumberField, accountNumberField, passwordStrength];
+
+// Login rules (by default, login uses ID number and password)
+const loginRules = [
+  body("idNumber")
+    .trim()
+    .matches(idNumberRegex)
+    .withMessage("ID number must be exactly 13 digits"),
+  body("password")
+    .isString()
+    .notEmpty()
+    .withMessage("Password is required")
+];
+
+module.exports = { registerRules, loginRules };

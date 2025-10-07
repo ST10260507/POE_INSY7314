@@ -4,9 +4,7 @@ const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const User = require("../models/User");
 
-// =========================
-// Helper: Generate JWT
-// =========================
+//generat jwt
 const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, role: user.role },
@@ -15,9 +13,7 @@ const generateToken = (user) => {
   );
 };
 
-// =========================
-// REGISTER USER (default role: user)
-// =========================
+//reg user
 exports.register = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty())
@@ -28,7 +24,7 @@ exports.register = async (req, res) => {
   const { fullName, idNumber, accountNumber, password } = req.body;
 
   try {
-    // Check if user already exists
+    //check if user already exists
     const existing = await User.findOne({
       $or: [{ idNumber }, { accountNumber }],
     });
@@ -66,9 +62,7 @@ exports.register = async (req, res) => {
   }
 };
 
-// =========================
-// LOGIN USER
-// =========================
+//login
 exports.login = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty())

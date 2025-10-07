@@ -9,8 +9,6 @@ import Details from "./pages/Details";
 import Logout from "./pages/Logout";
 import Transactions from "./pages/Transactions";
 
-// If you want SecurityDemo as your home screen, import it here
-// import SecurityDemo from "./SecurityDemo";
 
 export default function App() {
   return (

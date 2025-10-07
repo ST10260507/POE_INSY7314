@@ -1,15 +1,13 @@
 // middleware/authMiddleware.js
 const jwt = require("jsonwebtoken");
 
-// Define roles for easy reference
+//roles
 const ROLES = {
   ADMIN: "admin",
   USER: "user",
 };
 
-// =========================
-// Middleware: Verify JWT
-// =========================
+//verify jwt
 const protect = (req, res, next) => {
   let token;
 
@@ -38,9 +36,7 @@ const protect = (req, res, next) => {
   }
 };
 
-// =========================
-// Middleware: Require Role
-// =========================
+
 const requireRole = (requiredRole) => {
   return (req, res, next) => {
     if (req.user?.role === requiredRole) {

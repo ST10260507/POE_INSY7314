@@ -1,4 +1,4 @@
-// src/models/User.js
+//backend // src/models/User.js
 
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs"); // Used for password hashing
@@ -15,7 +15,6 @@ const roleSchema = new mongoose.Schema(
 // Main user schema
 const userSchema = new mongoose.Schema({
   fullName: { type: String, required: true },
-  email: { type: String, unique: true, required: true, lowercase: true, trim: true },
   password: { type: String, required: true },
   role: { type: String, enum: ["admin", "user"], default: "user" },
   idNumber: { type: String, sparse: true, unique: true }, 
@@ -36,16 +35,6 @@ userSchema.pre("save", async function (next) {
     next(err);
   }
 });
-
-// // Virtual for checking if user is employee
-// userSchema.virtual('isEmployee').get(function() {
-//   return this.role === 'employee' || this.role === 'admin';
-// });
-
-// // Virtual for checking if user is admin
-// userSchema.virtual('isAdmin').get(function() {
-//   return this.role === 'admin';
-// });
 
 // Compare raw password with hashed one (for login)
 userSchema.methods.comparePassword = async function (candidatePassword) {

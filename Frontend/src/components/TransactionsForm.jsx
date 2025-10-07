@@ -8,7 +8,7 @@ export default function Transactions() {
 
   const fetchTransactions = async () => {
     try {
-      const res = await API.get("/transactions"); // your backend route
+      const res = await API.get("/transactions"); // backend route
       setTransactions(res.data);
       setLoading(false);
     } catch (err) {

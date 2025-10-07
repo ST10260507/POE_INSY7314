@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 //roles
 const ROLES = {
   ADMIN: "admin",
-  USER: "user",
+  CLIENT: "client",
 };
 
 //verify jwt

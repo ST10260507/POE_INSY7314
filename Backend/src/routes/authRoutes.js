@@ -1,18 +1,44 @@
+// src/routes/authRoutes.js
+ 
 const express = require("express");
-const { registerClient, login } = require("../controllers/authController");
-const { registerRules, loginRules } = require("../utils/validator"); // Import validation rules
-
+ 
+// 💡 CHANGE: Destructure 'registerClient' instead of 'register'
+const { registerClient, login } = require("../controllers/authController"); 
+const { registerRules, loginRules } = require("../utils/validator");
 const router = express.Router();
-
-// Route for clients to register
-// Applies registration validation rules before calling the controller function
-router.post("/register", registerRules, registerClient);
-
-// Route for all users (clients and pre-saved admins) to log in
-// Login is standardized to use idNumber and password
-router.post("/login", loginRules, login);
-
+ 
+// Install express-rate-limit if you haven't
+const rateLimit = require("express-rate-limit");
+ 
+// Brute-force limiter for login
+const loginLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 20, // Max 20 requests per 10 minutes
+  message: "Too many login attempts from this IP, please try again after 10 minutes"
+});
+ 
+// 💡 CHANGE: Use the imported function name 'registerClient'
+router.post("/register", registerRules, registerClient); 
+router.post("/login", loginLimiter, loginRules, login);
+ 
 module.exports = router;
+ 
+
+// const express = require("express");
+// const { registerClient, login } = require("../controllers/authController");
+// const { registerRules, loginRules } = require("../utils/validator"); // Import validation rules
+
+// const router = express.Router();
+
+// // Route for clients to register
+// // Applies registration validation rules before calling the controller function
+// router.post("/register", registerRules, registerClient);
+
+// // Route for all users (clients and pre-saved admins) to log in
+// // Login is standardized to use idNumber and password
+// router.post("/login", loginRules, login);
+
+// module.exports = router;
 
 // // routes/authRoutes.js
 // const express = require("express");

@@ -14,13 +14,13 @@ dotenv.config();
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+    origin: "https://localhost:5173",
+    credentials: true
+}));
+ 
 app.use(express.json());
 
-// test route
-// app.get('/test', (req, res) => {
-//   res.json({ message: 'This is the JSON response' });
-// });
 
 // --- ADDED ROOT ROUTE HANDLER ---
 app.get('/', (req, res) => {

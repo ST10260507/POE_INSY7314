@@ -6,6 +6,7 @@ import "./DetailsForm.css";
 // 1. Define a clear structure for initial state
 const INITIAL_FORM_STATE = {
   fullName: "",
+  amount: "",
   bankName: "",
   accountNumber: "",
   accountType: "checking", // Default to 'checking'
@@ -65,10 +66,10 @@ export default function DetailsForm() {
 
   // 8. Define the input fields and their properties in a structured way (optional but cleaner)
   const formFields = useMemo(() => [
-    { name: "fullName", type: "text", placeholder: "Full Name", required: true },
-    { name: "bankName", type: "text", placeholder: "Bank Name", required: true },
+    { name: "fullName", type: "text", placeholder: "Full Name of recipient", required: true },
+    { name: "bankName", type: "text", placeholder: "Bank Name of recipient", required: true },
+    { name: "amount", type: "number", placeholder: "Amount", required: true },
     { name: "accountNumber", type: "text", placeholder: "Account Number", required: true },
-    { name: "swiftCode", type: "text", placeholder: "SWIFT/BIC Code (If applicable)" },
     { name: "cardNumber", type: "text", placeholder: "Card Number (Optional)", maxLength: 19 }, // Added maxLength
     { name: "expirationDate", type: "text", placeholder: "Card Expiration (MM/YY)", maxLength: 5 }, // Added maxLength and specific format
   ], []);
@@ -115,6 +116,43 @@ export default function DetailsForm() {
           </select>
         </div>
 
+      <div className="select-wrapper">
+        <select 
+          name="swiftCode"  
+          value={formData.swiftCode}  
+          onChange={handleChange}
+          disabled={isSubmitting}
+        >
+          <option value="">Select SWIFT Code</option>
+          <option value="CIBKJPJT">Mizuho Bank, Ltd. Japan</option>
+          <option value="BOFAGB22">Bank of America, London, United Kingdom</option>
+          <option value="CHASUS33">J.P. Morgan Chase Bank, USA</option>
+          <option value="DEUTDEFF">Deutsche Bank AG, Germany</option>
+          <option value="HSBCUS33">HSBC Bank, USA</option>
+          <option value="BAMLUS33">Bank of America, USA</option>
+          <option value="CITIUS33">Citibank, USA</option>
+          <option value="RABONL2U">Raboobank, Netherlands</option>
+          <option value="BARCGB22">Barclays Bank PLC, United Kingdom</option>
+          <option value="ANZBAU3M">Australia and New Zealand Banking Group Limited, Australia</option>
+        </select>
+      </div>
+
+        <div className="select-wrapper">
+        <select 
+          name="currency"  
+          value={formData.swiftCode}  
+          onChange={handleChange}
+          disabled={isSubmitting}
+        >
+          <option value="">Currency</option>
+          <option value="Rands">Rands</option>
+          <option value="American Dollar">American Dollar</option>
+          <option value="Pound">Pound</option>
+          <option value="Australian Dollar">Australian Dollar</option>
+          <option value="Japanese Yen">Japanese Yeny</option>
+        </select>
+      </div>
+
         <button 
           type="submit" 
           disabled={isSubmitting} // Use the loading state to disable the button
@@ -126,205 +164,3 @@ export default function DetailsForm() {
     </div>
   );
 }
-
-// import { useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import API from "../services/api";
-// import "./DetailsForm.css";
-
-// export default function DetailsForm() {
-//   const [fullName, setFullName] = useState("");
-//   const [bankName, setBankName] = useState("");
-//   const [accountNumber, setAccountNumber] = useState("");
-//   const [accountType, setAccountType] = useState("checking");
-//   const [swiftcode, setswiftcode] = useState("");
-//   const [cardNumber, setCardNumber] = useState("");
-//   const [expirationDate, setExpirationDate] = useState("");
-//   const [message, setMessage] = useState("");
-
-//   const navigate = useNavigate();
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     try {
-//       // await API.post("/auth/details", {
-//       //   fullName,
-//       //   bankName,
-//       //   accountNumber,
-//       //   accountType,
-//       //   swiftcode,
-//       //   cardNumber,
-//       //   expirationDate,
-//       // });
-//         await API.post("/details", {
-//           fullName,
-//           bankName,
-//           accountNumber,
-//           accountType,
-//           swiftcode,
-//           cardNumber,
-//           expirationDate,
-//         });
-
-//       setMessage("Details submitted successfully!");
-
-//       // Redirect to Summary page
-//       navigate("/summary");
-//     } catch (err) {
-//       console.error(err);
-//       setMessage(err.response?.data?.message || "Failed to submit details");
-//     }
-//   };
-
-//   return (
-//     <form className="details-form" onSubmit={handleSubmit}>
-//       <h2>Enter Your Banking Details</h2>
-//       {message && <p>{message}</p>}
-
-//       <input
-//         type="text"
-//         placeholder="Full Name"
-//         value={fullName}
-//         onChange={(e) => setFullName(e.target.value)}
-//         required
-//       />
-//       <input
-//         type="text"
-//         placeholder="Bank Name"
-//         value={bankName}
-//         onChange={(e) => setBankName(e.target.value)}
-//         required
-//       />
-//       <input
-//         type="text"
-//         placeholder="Account Number"
-//         value={accountNumber}
-//         onChange={(e) => setAccountNumber(e.target.value)}
-//         required
-//       />
-//       <select value={accountType} onChange={(e) => setAccountType(e.target.value)}>
-//         <option value="checking">Checking</option>
-//         <option value="savings">Savings</option>
-//       </select>
-//       <input
-//         type="text"
-//         placeholder="Swift code"
-//         value={swiftcode}
-//         onChange={(e) => setswiftcode(e.target.value)}
-//       />
-//       <input
-//         type="text"
-//         placeholder="Card Number (optional)"
-//         value={cardNumber}
-//         onChange={(e) => setCardNumber(e.target.value)}
-//       />
-//       <input
-//         type="text"
-//         placeholder="Card Expiration (MM/YY)"
-//         value={expirationDate}
-//         onChange={(e) => setExpirationDate(e.target.value)}
-//       />
-
-//       <button type="submit">Submit Details</button>
-//     </form>
-//   );
-// }
-
-
-// // import { useState } from "react";
-// // import { useNavigate, useLocation } from "react-router-dom";
-// // import API from "../services/api";
-// // import "./DetailsForm.css";
-
-// // export default function DetailsForm() {
-// //   const [fullName, setFullName] = useState("");
-// //   const [bankName, setBankName] = useState("");
-// //   const [accountNumber, setAccountNumber] = useState("");
-// //   const [accountType, setAccountType] = useState("checking");
-// //   const [swiftcode, setswiftcode] = useState("");
-// //   const [cardNumber, setCardNumber] = useState("");
-// //   const [expirationDate, setExpirationDate] = useState("");
-// //   const [message, setMessage] = useState("");
-
-// //   const navigate = useNavigate();
-// //   const location = useLocation();
-
-// //   const handleSubmit = async (e) => {
-// //     e.preventDefault();
-
-// //     try {
-// //       // Send banking details to your backend
-// //       const res = await API.post("/auth/details", {
-// //         fullName,
-// //         bankName,
-// //         accountNumber,
-// //         accountType,
-// //         swiftcode,
-// //         cardNumber,
-// //         expirationDate,
-// //       });
-
-// //       setMessage("Details submitted successfully!");
-// //       // Optionally navigate somewhere after submission
-// //       navigate("/dashboard");
-// //     } catch (err) {
-// //       console.error(err);
-// //       setMessage(err.response?.data?.message || "Failed to submit details");
-// //     }
-// //   };
-
-// //   return (
-// //     <form className="details-form" onSubmit={handleSubmit}>
-// //       <h2>Enter Your Banking Details</h2>
-// //       {location.state?.message && <p>{location.state.message}</p>}
-      
-// //       <input
-// //         type="text"
-// //         placeholder="Full Name"
-// //         value={fullName}
-// //         onChange={(e) => setFullName(e.target.value)}
-// //         required
-// //       />
-// //       <input
-// //         type="text"
-// //         placeholder="Bank Name"
-// //         value={bankName}
-// //         onChange={(e) => setBankName(e.target.value)}
-// //         required
-// //       />
-// //       <input
-// //         type="text"
-// //         placeholder="Account Number"
-// //         value={accountNumber}
-// //         onChange={(e) => setAccountNumber(e.target.value)}
-// //         required
-// //       />
-// //       <select value={accountType} onChange={(e) => setAccountType(e.target.value)}>
-// //         <option value="checking">Checking</option>
-// //         <option value="savings">Savings</option>
-// //       </select>
-// //       <input
-// //         type="text"
-// //         placeholder="Swift Code"
-// //         value={swiftcode}
-// //         onChange={(e) => setswiftcode(e.target.value)}
-// //       />
-// //       <input
-// //         type="text"
-// //         placeholder="Card Number (optional)"
-// //         value={cardNumber}
-// //         onChange={(e) => setCardNumber(e.target.value)}
-// //       />
-// //       <input
-// //         type="text"
-// //         placeholder="Card Expiration (MM/YY)"
-// //         value={expirationDate}
-// //         onChange={(e) => setExpirationDate(e.target.value)}
-// //       />
-
-// //       <button type="submit">Submit Details</button>
-// //       {message && <p>{message}</p>}
-// //     </form>
-// //   );
-// // }

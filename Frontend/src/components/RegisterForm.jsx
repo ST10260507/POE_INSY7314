@@ -111,8 +111,8 @@ export default function RegisterForm() {
 
   return (
 <div className="max-w-md mx-auto p-6 bg-white shadow-xl rounded-xl mt-10">
-<h2 className="text-2xl font-bold mb-4 text-gray-800">Client Registration</h2>
 <form onSubmit={handleSubmit} className="space-y-4">
+  <h2 className="text-2xl font-bold mb-4 text-gray-800">Client Registration</h2>
 
         {/* Input Fields */}
 <input

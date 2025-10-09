@@ -1,3 +1,5 @@
+//src/controllers/authController.js
+
 // Import the jsonwebtoken package to create and verify JWT tokens
 const jwt = require("jsonwebtoken");
 // Import the User model to interact with the users collection in MongoDB

@@ -1,3 +1,5 @@
+//
+
 // Regular expressions matching the backend rules
 const FULL_NAME_REGEX = /^[A-Za-z\s]+$/;      
 const ID_NUMBER_REGEX = /^\d{13}$/;          

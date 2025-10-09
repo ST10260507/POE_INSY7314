@@ -1,3 +1,4 @@
+//src/models/TransactionDetails.js
 const mongoose = require("mongoose");
 
 const swiftCodeSchema = new mongoose.Schema({

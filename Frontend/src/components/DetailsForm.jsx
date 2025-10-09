@@ -1,3 +1,4 @@
+//src/components/DetailsForm.jsx
 import React, { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";

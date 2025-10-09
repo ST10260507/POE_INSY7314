@@ -24,6 +24,9 @@ app.use(cors({
 // Helmet baseline security headers
 app.use(helmet());
 
+// Enable trust proxy so rate limiting works behind proxies/load balancers
+app.set("trust proxy", 1);
+
 // Content Security Policy directives
 const cspDirectives = {
   defaultSrc: ["'self'"],

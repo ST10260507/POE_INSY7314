@@ -5,20 +5,16 @@ const express = require("express");
 // 💡 CHANGE: Destructure 'registerClient' instead of 'register'
 const { registerClient, login } = require("../controllers/authController"); 
 const { registerRules, loginRules } = require("../utils/validator");
+
+// ✅ Import limiters from centralized middleware
+const { registerLimiter, loginLimiter } = require("../middleware/rateLimiter");
+
 const router = express.Router();
  
-// Install express-rate-limit if you haven't
-const rateLimit = require("express-rate-limit");
- 
-// Brute-force limiter for login
-const loginLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 20, // Max 20 requests per 10 minutes
-  message: "Too many login attempts from this IP, please try again after 10 minutes"
-});
  
 // 💡 CHANGE: Use the imported function name 'registerClient'
-router.post("/register", registerRules, registerClient); 
+// 🧩 Add registerLimiter BEFORE registerRules
+router.post("/register", registerLimiter, registerRules, registerClient); 
 router.post("/login", loginLimiter, loginRules, login);
  
 module.exports = router;

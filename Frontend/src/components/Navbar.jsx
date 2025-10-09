@@ -1,3 +1,4 @@
+//src/components/Navbar.jsx
 import { Link } from "react-router-dom";
 import "./Navbar.css";
 
@@ -7,17 +8,21 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <Link to="/">Home</Link>
-        <>
-          <Link to="/register">Register</Link>
-          <Link to="/login">Login</Link>
-        </>
-        <>
-          <Link to="/logout">Logout</Link>
-          <Link to="/details">Details</Link>
-        </>
-                <>
-          <Link to="/transactions">Transactions</Link>
-        </>
+      <>
+        <Link to="/register">Register</Link>
+        <Link to="/login">Login</Link>
+      </>
+      <>
+        <Link to="/logout">Logout</Link>
+        <Link to="/details">Details</Link>
+      </>
+      <>
+        <Link to="/transactions">Transactions</Link>
+      </>
+      {/* ADD THIS LINK */}
+      <>
+        <Link to="/security-demo">Security Demo</Link>
+      </>
     </nav>
   );
 }

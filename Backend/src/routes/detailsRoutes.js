@@ -1,3 +1,4 @@
+//src/routes/detailsRoutes.js
 const express = require("express");
 const router = express.Router();
 const { addTransaction } = require("../controllers/transactionDetailsController");

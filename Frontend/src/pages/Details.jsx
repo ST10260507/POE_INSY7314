@@ -1,3 +1,4 @@
+//src/pages/Details.jsx
 import DetailsForm from "../components/DetailsForm"; 
 import "./Details.css";
 

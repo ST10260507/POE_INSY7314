@@ -1,3 +1,4 @@
+//src/utils/validator.js
 const { body } = require("express-validator");
  
 // Shared password strength rule (unchanged)

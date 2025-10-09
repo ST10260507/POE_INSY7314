@@ -1,3 +1,4 @@
+//src/middleware/roles.js
 const User = require("../models/User");
  
 // middleware to restrict routes by role

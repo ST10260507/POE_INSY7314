@@ -45,7 +45,12 @@ export default function DetailsForm() {
     const payload = swiftCode ? { ...dataToSend, swiftCode } : dataToSend;
 
     try {
-      await API.post("/details", payload);
+      await API.post("/transactiondetails", payload, {
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+});
 
       setMessage("Details submitted successfully! Redirecting...");
       
@@ -141,7 +146,7 @@ export default function DetailsForm() {
         <div className="select-wrapper">
         <select 
           name="currency"  
-          value={formData.swiftCode}  
+          value={formData.currency}  
           onChange={handleChange}
           disabled={isSubmitting}
         >

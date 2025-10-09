@@ -69,6 +69,6 @@ app.post("/csp-report", (req, res) => {
 
 // Routes
 app.use("/api/auth", authRoutes); 
-app.use("/api/details", detailsRoutes);
+app.use("/api", detailsRoutes);
 
 module.exports = app;

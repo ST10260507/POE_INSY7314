@@ -26,6 +26,7 @@ export default function Login() {
       });
       alert("Login successful!");
       console.log(res.data);
+      localStorage.setItem("token", res.data.token);
     } catch (err) {
       console.error("Login failed:", err.response?.data || err.message);
       setError(err.response?.data?.message || "Login failed!");

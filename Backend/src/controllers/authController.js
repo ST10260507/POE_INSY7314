@@ -12,7 +12,7 @@ const generateToken = (user) =>
   jwt.sign(
     { id: user._id, accountNumber: user.accountNumber, roles: user.roles },                  // Payload: we include the user ID
     process.env.JWT_SECRET,         // Secret key from .env file (must be kept private)
-    { expiresIn: "1h" }             // Token expires in 1 hour
+    { expiresIn: "1d" }             // Token expires in 1 day
   );
  
 // Controller: handles user registration

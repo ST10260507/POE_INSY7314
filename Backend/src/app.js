@@ -7,7 +7,6 @@ const dotenv = require('dotenv');
 // --- IMPORTS ---
 const authRoutes = require("./routes/authRoutes");  
 const detailsRoutes = require("./routes/detailsRoutes"); 
-const transactionsRoute = require("./routes/transactionsRoute"); 
 
 dotenv.config();
 
@@ -30,7 +29,6 @@ app.get('/', (req, res) => {
         endpoints: [
             '/api/auth', 
             '/api/details', 
-            '/api/transactions'
         ]
     });
 });
@@ -39,6 +37,5 @@ app.get('/', (req, res) => {
 // --- ROUTER CONNECTIONS ---
 app.use("/api/auth", authRoutes); 
 app.use("/api/details", detailsRoutes); 
-app.use("/api/transactions", transactionsRoute); 
 
 module.exports = app;

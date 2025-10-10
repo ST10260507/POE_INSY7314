@@ -1,0 +1,62 @@
+name: DevSecOps CI Pipeline
+
+on:
+  push:
+    # Trigger the pipeline whenever code is pushed to the main or master branch
+    branches:
+      - main
+      - master
+  pull_request:
+    # Also run scans when a pull request is opened/updated against main
+    branches:
+      - main
+
+jobs:
+  # ===============================================
+  # JOB 1: Dependency Vulnerability Check (npm audit)
+  # Checks third-party libraries for known flaws.
+  # ===============================================
+  dependency_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Use your project's target Node version
+
+      # 1. Scan the Backend (assuming package.json is in the 'backend/' folder)
+      - name: Install Backend Dependencies
+        run: npm install --prefix backend/
+      - name: Run Backend npm audit
+        # Fails if high or critical vulnerabilities are found
+        run: npm audit --prefix backend/ --audit-level=high
+
+      # 2. Scan the Frontend (assuming package.json is in the 'frontend/' folder)
+      - name: Install Frontend Dependencies
+        run: npm install --prefix frontend/
+      - name: Run Frontend npm audit
+        run: npm audit --prefix frontend/ --audit-level=high
+
+---
+
+  # ===============================================
+  # JOB 2: Static Analysis Security Testing (SAST)
+  # Checks your code for common security bugs (e.g., hardcoded secrets).
+  # ===============================================
+  sast_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Using Semgrep (a popular open-source SAST tool)
+      - name: Run Semgrep SAST Scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          # Scans for common security issues relevant to your project's languages
+          config: p/security-audit
+          
+      # Optional: Fail the build explicitly if the SAST tool finds issues
+      - name: Check SAST Results
+        if: failure()
+        run: echo "Semgrep found security issues. Inspect the results on GitHub Actions." && exit 1

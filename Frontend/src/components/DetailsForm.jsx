@@ -1,30 +1,29 @@
-//src/components/DetailsForm.jsx
+// src/components/DetailsForm.jsx
 import React, { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import "./DetailsForm.css";
 
-// 1. Define a clear structure for initial state
 const INITIAL_FORM_STATE = {
-  fullName: "",
+  // Maps to 'fullName' in the backend payload
+  recipientFullName: "",
   amount: "",
   bankName: "",
   accountNumber: "",
-  accountType: "checking", // Default to 'checking'
-  swiftCode: "", // Corrected camelCase for professionalism
+  accountType: "checking",
+  swiftCode: "",
   cardNumber: "",
   expirationDate: "",
+  currency: "Rands",
 };
 
 export default function DetailsForm() {
-  // 2. Use a single state object for all form fields
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [message, setMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false); // 3. Add loading state
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
 
-  // 4. Handle input changes with a single function
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -35,53 +34,59 @@ export default function DetailsForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage(""); // Clear previous messages
-    setIsSubmitting(true); // Start loading
+    setMessage("");
+    setIsSubmitting(true);
 
-    // 5. Destructure the data we are sending
-    const { swiftCode, ...dataToSend } = formData;
-    
-    // 6. Use optional fields conditionally (e.g., swiftCode)
-    const payload = swiftCode ? { ...dataToSend, swiftCode } : dataToSend;
+    const { recipientFullName, amount, ...rest } = formData;
+
+    // Construct the payload, mapping recipientFullName to 'fullName' 
+    // and ensuring amount is a number for the database.
+    const payload = {
+        fullName: recipientFullName,
+        amount: Number(amount),
+        ...rest,
+        // Optional fields are set to undefined if empty
+        swiftCode: formData.swiftCode || undefined,
+        cardNumber: formData.cardNumber || undefined,
+        expirationDate: formData.expirationDate || undefined,
+    };
 
     try {
-      await API.post("/transactiondetails", payload, {
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-});
+      // Corrected endpoint path to match app.js setup: /api/details
+      await API.post("/details", payload, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+      });
 
       setMessage("Details submitted successfully! Redirecting...");
-      
-      // Navigate after a short delay for the user to see the success message
+
       setTimeout(() => {
-        navigate("/summary");
+        navigate("/home");
       }, 1500);
 
     } catch (err) {
-      console.error("Submission error:", err);
-      // 7. Enhanced error message handling
+      console.error("Submission error:", err.response?.data?.error || err.message);
       setMessage(
-        err.response?.data?.message || "Failed to submit details. Please try again."
+        err.response?.data?.message || err.response?.data?.error || "Failed to submit details. Please try again."
       );
     } finally {
-      setIsSubmitting(false); // Stop loading
+      setIsSubmitting(false);
     }
   };
 
-  // 8. Define the input fields and their properties in a structured way (optional but cleaner)
   const formFields = useMemo(() => [
-    { name: "fullName", type: "text", placeholder: "Full Name of recipient", required: true },
-    { name: "bankName", type: "text", placeholder: "Bank Name of recipient", required: true },
-    { name: "amount", type: "number", placeholder: "Amount", required: true },
+    { name: "recipientFullName", type: "text", placeholder: "Full Name of Recipient", required: true },
+    { name: "bankName", type: "text", placeholder: "Recipient Bank Name", required: true },
+    { name: "amount", type: "number", placeholder: "Amount", required: true, min: "0.01" },
     { name: "accountNumber", type: "text", placeholder: "Account Number", required: true },
-    { name: "cardNumber", type: "text", placeholder: "Card Number (Optional)", maxLength: 19 }, // Added maxLength
-    { name: "expirationDate", type: "text", placeholder: "Card Expiration (MM/YY)", maxLength: 5 }, // Added maxLength and specific format
+    { name: "cardNumber", type: "text", placeholder: "Card Number (Optional)", maxLength: 19 },
+    { name: "expirationDate", type: "text", placeholder: "Card Expiration (MM/YY)", maxLength: 5 },
   ], []);
 
   return (
-    <div className="details-form-container"> {/* New container for better centering/styling */}
+    <div className="details-form-container">
       <form className="details-form" onSubmit={handleSubmit}>
         <h2 className="form-title">Secure Banking Details Entry</h2>
 
@@ -92,28 +97,29 @@ export default function DetailsForm() {
           </p>
         )}
 
-        {/* Form Fields */}
-        {formFields.map((field) => (
-          <input
-            key={field.name}
-            type={field.type}
-            name={field.name} // Crucial for single handleChange function
-            placeholder={field.placeholder}
-            value={formData[field.name]}
-            onChange={handleChange}
-            required={field.required}
-            maxLength={field.maxLength}
-            // 9. Added autocomplete for security/UX
-            autoComplete={field.name.includes('card') ? 'cc-' + field.name : field.name}
-            disabled={isSubmitting} // Disable during submission
-          />
-        ))}
+       {/* Form Fields */}
+    {formFields.map((field) => (
+      <input
+        key={field.name}
+        type={field.type}
+        name={field.name}
+        placeholder={field.placeholder}
+        value={formData[field.name]}
+        onChange={handleChange}
+        required={field.required}
+        maxLength={field.maxLength}
+        min={field.min}
+        // CORRECTED: Removed the extra ': field.name'
+        autoComplete={field.name.includes('card') ? 'cc-' + field.name : field.name}
+        disabled={isSubmitting}
+      />
+))}
 
         {/* Account Type Select */}
-        <div className="select-wrapper"> {/* Wrap select for better styling */}
-          <select 
+        <div className="select-wrapper">
+          <select
             name="accountType"
-            value={formData.accountType} 
+            value={formData.accountType}
             onChange={handleChange}
             disabled={isSubmitting}
           >
@@ -123,46 +129,46 @@ export default function DetailsForm() {
         </div>
 
       <div className="select-wrapper">
-        <select 
-          name="swiftCode"  
-          value={formData.swiftCode}  
+        <select
+          name="swiftCode"
+          value={formData.swiftCode}
           onChange={handleChange}
           disabled={isSubmitting}
         >
-          <option value="">Select SWIFT Code</option>
+          <option value="">Select SWIFT Code (Optional)</option>
           <option value="CIBKJPJT">Mizuho Bank, Ltd. Japan</option>
-          <option value="BOFAGB22">Bank of America, London, United Kingdom</option>
+          <option value="BOFAGB22">Bank of America, London, UK</option>
           <option value="CHASUS33">J.P. Morgan Chase Bank, USA</option>
           <option value="DEUTDEFF">Deutsche Bank AG, Germany</option>
           <option value="HSBCUS33">HSBC Bank, USA</option>
           <option value="BAMLUS33">Bank of America, USA</option>
           <option value="CITIUS33">Citibank, USA</option>
           <option value="RABONL2U">Raboobank, Netherlands</option>
-          <option value="BARCGB22">Barclays Bank PLC, United Kingdom</option>
-          <option value="ANZBAU3M">Australia and New Zealand Banking Group Limited, Australia</option>
+          <option value="BARCGB22">Barclays Bank PLC, UK</option>
+          <option value="ANZBAU3M">ANZ Banking Group, Australia</option>
         </select>
       </div>
 
         <div className="select-wrapper">
-        <select 
-          name="currency"  
-          value={formData.currency}  
+        <select
+          name="currency"
+          value={formData.currency}
           onChange={handleChange}
           disabled={isSubmitting}
         >
-          <option value="">Currency</option>
+          <option value="">Select Currency</option>
           <option value="Rands">Rands</option>
           <option value="American Dollar">American Dollar</option>
           <option value="Pound">Pound</option>
           <option value="Australian Dollar">Australian Dollar</option>
-          <option value="Japanese Yen">Japanese Yeny</option>
+          <option value="Japanese Yen">Japanese Yen</option>
         </select>
       </div>
 
-        <button 
-          type="submit" 
-          disabled={isSubmitting} // Use the loading state to disable the button
-          className="submit-button" // Add a class for styling
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="submit-button"
         >
           {isSubmitting ? "Submitting..." : "Submit Payment Details"}
         </button>

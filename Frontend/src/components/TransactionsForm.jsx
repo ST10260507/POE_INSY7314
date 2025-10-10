@@ -47,7 +47,7 @@ export default function Transactions() {
       <table>
         <thead>
           <tr>
-            <th>User</th>
+            {/* <th>User</th> */}
             <th>Amount</th>
             <th>Description</th>
             <th>Status</th>
@@ -57,7 +57,7 @@ export default function Transactions() {
         <tbody>
           {transactions.map(tx => (
             <tr key={tx._id}>
-              <td>{tx.userId.fullName || tx.userId.email}</td>
+              {/* <td>{tx.userId.fullName || tx.userId.email}</td> */}
               <td>${tx.amount}</td>
               <td>{tx.description}</td>
               <td>{tx.status}</td>

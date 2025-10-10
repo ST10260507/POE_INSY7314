@@ -16,10 +16,10 @@ const requireRole = (role) => {
       }
  
       // check for editor or reader in context of blog
-      const blogId = req.params.blogId || req.body.blogId;
-      const hasRole = user.roles.some(r =>
-        r.role === role && (!blogId || r.blogId?.toString() === blogId)
-      );
+      // const blogId = req.params.blogId || req.body.blogId;
+      // const hasRole = user.roles.some(r =>
+      //   r.role === role && (!blogId || r.blogId?.toString() === blogId)
+      // );
  
       // admins override everything
       if (!hasRole && !user.roles.some(r => r.role === "admin")) {

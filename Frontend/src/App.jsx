@@ -1,7 +1,9 @@
+
+
 // frontend/src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
-// import ProtectedRoute from "./components/ProtectedRoute"; // Not needed if not used
+import ProtectedRoute, { RequireAuth } from "./components/ProtectedRoute";
 
 import Home from "./pages/Home";
 import Register from "./pages/Register";
@@ -10,27 +12,66 @@ import Details from "./pages/Details";
 import Logout from "./pages/Logout";
 import Transactions from "./pages/Transactions";
 import SecurityDemo from "./SecurityDemo";
-import Summary from "./pages/summary"; // 🛑 Added Summary Import
+import Summary from "./pages/summary";
 
 export default function App() {
   return (
     <Router>
       <Navbar />
       <Routes>
+        {/* Public Routes */}
         <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         
-        {/* All routes are now standard (not protected) */}
-        <Route path="/details" element={<Details />} /> 
+        {/* Client-Only Routes */}
+        <Route 
+          path="/details" 
+          element={
+            <ProtectedRoute allowedRoles={["client"]}>
+              <Details />
+            </ProtectedRoute>
+          } 
+        />
         
-        {/* 🛑 Added the route for the Summary page */}
-        <Route path="/summary" element={<Summary />} />
+        <Route 
+          path="/summary" 
+          element={
+            <ProtectedRoute allowedRoles={["client"]}>
+              <Summary />
+            </ProtectedRoute>
+          } 
+        />
         
-        <Route path="/transactions" element={<Transactions />} />
+        {/* Admin-Only Routes */}
+        <Route 
+          path="/transactions" 
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <Transactions />
+            </ProtectedRoute>
+          } 
+        />
         
-        <Route path="/logout" element={<Logout />} />
-        <Route path="/security-demo" element={<SecurityDemo />} />
+        <Route 
+          path="/security-demo" 
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <SecurityDemo />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Routes that require authentication but no specific role */}
+        <Route 
+          path="/logout" 
+          element={
+            <RequireAuth>
+              <Logout />
+            </RequireAuth>
+          } 
+        />
       </Routes>
     </Router>
   );

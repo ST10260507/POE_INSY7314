@@ -62,10 +62,13 @@ export default function ListOfAdminList() {
               <td>{listOfAdmin.accountNumber}</td>
               <td>{listOfAdmin.status}</td>
               <td>
-                {(
+                {listOfAdmin.status === "pending" && (
                   <>
-                    <button onClick={() => handleDelete(detail._id)} className="delete-button">Delete</button>
+                    <button onClick={() => handleDelete(listOfAdmin._id)} className="delete-button">Delete</button>
                   </>
+                )}
+                {listOfAdmin.status !== "pending" && (
+                    <span className={`status-badge status-${listOfAdmin.status}`}>{listOfAdmin.status}</span>
                 )}
               </td>
             </tr>

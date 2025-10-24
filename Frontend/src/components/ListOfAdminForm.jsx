@@ -53,7 +53,7 @@ export default function ListOfAdmin() {
               <td>{tx.idNumber}</td>
               <td>{tx.accountNummber}</td>
               <td>
-                {(
+                {tx.status === "pending" && (
                   <>
                     <button onClick={() => handleDelete(tx._id)}>Delete</button>
                   </>

@@ -1,138 +1,30 @@
-// src/routes/authRoutes.js
- 
 const express = require("express");
  
-// 💡 CHANGE: Destructure 'registerClient' instead of 'register'
-const { registerClient, login } = require("../controllers/authController"); 
+// Import all auth controller functions including delete
+const { registerClient, login, registerAdmin, getAdmins, deleteAdmin } = require("../controllers/authController"); 
 const { registerRules, loginRules } = require("../utils/validator");
 
-// ✅ Import limiters from centralized middleware
+// Import auth middleware for protecting admin routes
+const { protect, admin } = require("../middleware/authMiddleware");
+
+// Import limiters from centralized middleware
 const { registerLimiter, loginLimiter } = require("../middleware/rateLimiter");
 
 const router = express.Router();
  
- 
-// 💡 CHANGE: Use the imported function name 'registerClient'
-// 🧩 Add registerLimiter BEFORE registerRules
+// Client registration route (public)
 router.post("/register", registerLimiter, registerRules, registerClient); 
+
+// Login route (public - for both clients and admins)
 router.post("/login", loginLimiter, loginRules, login);
+
+// Admin registration route (protected - only admins can create other admins)
+router.post("/register-admin", protect, admin, registerLimiter, registerRules, registerAdmin);
+
+// Get all admins route (protected - only admins can view admin list)
+router.get("/admins", protect, admin, getAdmins);
+
+// Delete admin route (protected - only admins can delete admins)
+router.delete("/admins/:id", protect, admin, deleteAdmin);
  
 module.exports = router;
- 
-
-// const express = require("express");
-// const { registerClient, login } = require("../controllers/authController");
-// const { registerRules, loginRules } = require("../utils/validator"); // Import validation rules
-
-// const router = express.Router();
-
-// // Route for clients to register
-// // Applies registration validation rules before calling the controller function
-// router.post("/register", registerRules, registerClient);
-
-// // Route for all users (clients and pre-saved admins) to log in
-// // Login is standardized to use idNumber and password
-// router.post("/login", loginRules, login);
-
-// module.exports = router;
-
-// // routes/authRoutes.js
-// const express = require("express");
-// const bcrypt = require("bcryptjs");
-// const jwt = require("jsonwebtoken");
-// const User = require("../models/User.js"); 
-
-// const router = express.Router();
-
-// //reg a user
-// router.post("/register", async (req, res) => {
-//   try {
-//     const { fullName, idNumber, accountNumber, password } = req.body;
-
-// //check missing fields
-//     if (!fullName || !idNumber || !accountNumber || !password) {
-//       return res.status(400).json({ message: "All fields are required." });
-//     }
-
-//     // Check for existing user by ID number or account number
-//     const existingUser = await User.findOne({
-//       $or: [{ idNumber }, { accountNumber }],
-//     });
-
-//     if (existingUser) {
-//       return res.status(400).json({ message: "User already exists" });
-//     }
-
-//     // Hash the password
-//     const hashedPassword = await bcrypt.hash(password, 10);
-
-//     // Create new user document
-//     const newUser = new User({
-//       fullName,
-//       idNumber,
-//       accountNumber,
-//       password: hashedPassword,
-//       role: "client", // set default role
-//     });
-
-//     // Save to MongoDB
-//     await newUser.save();
-
-//     res.status(201).json({
-//       message: "User registered successfully",
-//       user: {
-//         fullName: newUser.fullName,
-//         idNumber: newUser.idNumber,
-//         accountNumber: newUser.accountNumber,
-//         role: newUser.role,
-//       },
-//     });
-//   } catch (err) {
-//     console.error("Registration error:", err);
-//     res.status(500).json({ message: "Server error during registration" });
-//   }
-// });
-
-// //login
-// router.post("/login", async (req, res) => {
-//   try {
-//     const { idNumber, password } = req.body;
-
-//     // Find user by idNumber
-//     const user = await User.findOne({ idNumber });
-//     if (!user) {
-//       return res.status(400).json({ message: "User not found" });
-//     }
-
-//     // Compare password
-//     const isMatch = await bcrypt.compare(password, user.password);
-//     if (!isMatch) {
-//       return res.status(400).json({ message: "Invalid credentials" });
-//     }
-
-//     // Generate JWT token
-//     const token = jwt.sign(
-//       { id: user._id, role: user.role },
-//       process.env.JWT_SECRET || "your_jwt_secret",
-//       { expiresIn: "1h" }
-//     );
-
-//     res.json({
-//       message: "Login successful",
-//       token,
-//       user: {
-//         id: user._id,
-//         fullName: user.fullName,
-//         password: user.password,
-//         accountNumber: user.accountNumber,
-//         idNumber: user.idNumber,
-//         role: user.role,
-//       },
-//     });
-//   } catch (err) {
-//     console.error("Login error:", err);
-//     res.status(500).json({ message: "Server error during login" });
-//   }
-// });
-
-// module.exports = router;

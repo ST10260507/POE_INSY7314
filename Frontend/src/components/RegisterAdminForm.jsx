@@ -1,4 +1,4 @@
-// //frontend //src //components //RegisterForm.jsx
+// //frontend //src //components //RegisterAdminForm.jsx
 
 import { useState } from "react";
 
@@ -8,8 +8,7 @@ import axios from "axios";
 
 export default function RegisterForm() {
 
-  // State initializes the role field to 'client'.
-
+  // State initializes the form fields
   const [formData, setFormData] = useState({
 
     fullName: "",
@@ -19,8 +18,6 @@ export default function RegisterForm() {
     accountNumber: "",
 
     password: "",
-
-    role: "client" // 💡 The role is fixed here.
 
   });
 
@@ -57,9 +54,26 @@ export default function RegisterForm() {
 
     try {
 
-      // 💡 CRITICAL FIX: Changed URL to HTTPS to match backend server setup (and solve CORS/connection issues)
+      // Get token from localStorage (admin must be logged in)
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        setError("You must be logged in as an admin");
+        setLoading(false);
+        return;
+      }
 
-      const res = await axios.post("https://localhost:5000/api/auth/register", formData);
+      // 💡 CHANGED: Use /register-admin endpoint with Authorization header
+      const res = await axios.post(
+        "https://localhost:5000/api/auth/register-admin", 
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          withCredentials: true
+        }
+      );
 
       // Success response
 
@@ -67,9 +81,8 @@ export default function RegisterForm() {
 
       console.log("Registration successful:", res.data);
 
-      // Optionally clear form data here (keeping the role fixed)
-
-      setFormData({ fullName: "", idNumber: "", accountNumber: "", password: "", role: "client" });
+      // Clear form data here
+      setFormData({ fullName: "", idNumber: "", accountNumber: "", password: "" });
 
     } catch (err) {
 
@@ -90,6 +103,10 @@ export default function RegisterForm() {
           // Maps and joins validation error messages
 
           errorMessage = err.response.data.errors.map(e => e.msg || e.message).join(' | ');
+
+      } else if (err.response?.status === 403 || err.response?.status === 401) {
+
+          errorMessage = "Access denied. Only admins can register other admins.";
 
       } else if (err.message === "Network Error" || err.code === "ERR_BAD_RESPONSE") {
 
@@ -112,7 +129,7 @@ export default function RegisterForm() {
   return (
 <div className="max-w-md mx-auto p-6 bg-white shadow-xl rounded-xl mt-10">
 <form onSubmit={handleSubmit} className="space-y-4">
-  <h2 className="text-2xl font-bold mb-4 text-gray-800">Client Registration</h2>
+  <h2 className="text-2xl font-bold mb-4 text-gray-800">Admin Registration</h2>
 
         {/* Input Fields */}
 <input
@@ -167,17 +184,6 @@ export default function RegisterForm() {
           onChange={handleChange}
 
           className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-        />
-
-        {/* 💡 HIDDEN FIELD: Sends the fixed role to the backend */}
-<input 
-
-          type="hidden" 
-
-          name="role" 
-
-          value={formData.role} 
 
         />
 

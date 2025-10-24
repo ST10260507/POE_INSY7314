@@ -1,6 +1,6 @@
-//frontend //src //pages //register.jsx
-import RegisterAdminForm from "../components/RegisterForm";
+//frontend //src //pages //RegisterAdmin.jsx
+import RegisterAdminForm from "../components/RegisterAdminForm";
 
-export default function Register() {
+export default function RegisterAdmin() {
   return <RegisterAdminForm />;
 }

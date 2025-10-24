@@ -1,4 +1,4 @@
-//
+// Frontend/src/utils/validators.js
 
 // Regular expressions matching the backend rules
 const FULL_NAME_REGEX = /^[A-Za-z\s]+$/;      

@@ -1,5 +1,3 @@
-
-
 // frontend/src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
@@ -13,6 +11,8 @@ import Logout from "./pages/Logout";
 import Transactions from "./pages/Transactions";
 import SecurityDemo from "./SecurityDemo";
 import Summary from "./pages/summary";
+import RegisterAdmin from "./pages/RegisterAdmin";
+import ListOfAdminList from "./pages/ListOfAdmin";
 
 export default function App() {
   return (
@@ -50,6 +50,24 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <Transactions />
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/register-admin" 
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <RegisterAdmin />
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/admin-list" 
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <ListOfAdminList />
             </ProtectedRoute>
           } 
         />

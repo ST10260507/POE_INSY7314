@@ -1,4 +1,4 @@
-// src/routes/detailsRoutes.js (FINAL CORRECTED VERSION)
+// src/routes/detailsRoutes.js 
 
 /*Route-level clarity mirrors the lab brief: public reads; author-only draft ops; 
 editor/admin publish; admin delete.

@@ -1,4 +1,3 @@
-
 //src/components/Navbar.jsx
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -100,6 +99,8 @@ export default function Navbar() {
           {userRole === "admin" && (
             <>
               <Link to="/transactions">Transactions</Link>
+              <Link to="/register-admin">Register Admin</Link>
+              <Link to="/admin-list">Admin List</Link>
               <Link to="/security-demo">Security Demo</Link>
             </>
           )}

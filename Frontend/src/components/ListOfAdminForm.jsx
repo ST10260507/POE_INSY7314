@@ -1,6 +1,7 @@
-// src/components/Transactions.jsx
+// src/components/ListOfAdminForm.jsx
 import { useEffect, useState } from "react";
 import API from "../services/api";
+import "../pages/ListOfAdmin.css"; // Import her CSS styling from pages folder
 
 export default function ListOfAdmin() {
   const [listOfAdmin, setListOfAdmin] = useState([]);
@@ -8,8 +9,11 @@ export default function ListOfAdmin() {
 
   const fetchListOfAdmin = async () => {
     try {
-      const res = await API.get("/listOfAdmin"); // backend route
-      setListOfAdmin(res.data);
+      // Use /auth/admins endpoint
+      const res = await API.get("/auth/admins"); 
+      
+      // Backend returns { admins: [...] }
+      setListOfAdmin(res.data.admins);
       setLoading(false);
     } catch (err) {
       console.error(err);
@@ -23,22 +27,24 @@ export default function ListOfAdmin() {
 
   const handleDelete = async (id) => {
     try {
-      await API.put(`/listOfAdmin/${id}/delete`);
-      fetchListOfAdmin(); // refresh list
+      // Call delete endpoint
+      await API.delete(`/auth/admins/${id}`);
+      // Refresh the list after deletion
+      fetchListOfAdmin();
     } catch (err) {
-      console.error(err);
+      console.error("Delete error:", err);
+      alert("Failed to delete admin. You may need to implement the delete endpoint in the backend.");
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p className="loading-message">Loading...</p>;
 
   return (
-    <div>
+    <div className="listOfAdmin-container">
       <h2>List Of Admins</h2>
-      <table>
+      <table className="listOfAdmin-table">
         <thead>
           <tr>
-            {/* <th>User</th> */}
             <th>fullName</th>
             <th>idNumber</th>
             <th>accountNumber</th>
@@ -48,16 +54,11 @@ export default function ListOfAdmin() {
         <tbody>
           {listOfAdmin.map(tx => (
             <tr key={tx._id}>
-              {/* <td>{tx.userId.fullName || tx.userId.email}</td> */}
-              <td>${tx.fullName}</td>
+              <td>{tx.fullName}</td>
               <td>{tx.idNumber}</td>
-              <td>{tx.accountNummber}</td>
+              <td>{tx.accountNumber}</td>
               <td>
-                {tx.status === "pending" && (
-                  <>
-                    <button onClick={() => handleDelete(tx._id)}>Delete</button>
-                  </>
-                )}
+                <button onClick={() => handleDelete(tx._id)}>Delete</button>
               </td>
             </tr>
           ))}

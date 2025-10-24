@@ -1,4 +1,4 @@
-// src/pages/DetailsList.jsx
+// src/pages/Transactions.jsx
 import { useEffect, useState, useCallback } from "react";
 import API from "../services/api";
 import "./Transactions.css"; // Reusing the CSS file

@@ -1,4 +1,4 @@
-
+// src/components/ProtectedRoute.jsx
 import { Navigate } from "react-router-dom";
 
 // Helper function to decode JWT token

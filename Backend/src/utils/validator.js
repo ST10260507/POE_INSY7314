@@ -1,180 +1,53 @@
-//src/utils/validator.js
+// src/utils/validator.js
 const { body } = require("express-validator");
- 
-// Shared password strength rule (unchanged)
+
+// Shared password strength rule (with whitelisted pattern)
 const passwordStrength = body("password")
   .isLength({ min: 8 }).withMessage("Password must be at least 8 characters")
+  .matches(/^[A-Za-z0-9!@#$%^&*()_+=-]+$/).withMessage("Password contains invalid characters")
   .matches(/[A-Za-z]/).withMessage("Password must include a letter")
   .matches(/\d/).withMessage("Password must include a number");
- 
+
 // -----------------------------------------------------------
 // Register Rules: Validate ALL required User Model fields
 // -----------------------------------------------------------
 const registerRules = [
-  // 💡 New: Validate fullName
+  // Whitelist fullName (letters, spaces, hyphens only)
   body("fullName")
-    .trim().notEmpty().withMessage("Full name is required"),
- 
-  // 💡 New: Validate idNumber
+    .trim()
+    .notEmpty().withMessage("Full name is required")
+    .matches(/^[A-Za-z\s'-]+$/).withMessage("Full name contains invalid characters"),
+
+  // Whitelist ID Number (digits only)
   body("idNumber")
     .isString().withMessage("ID Number must be a string")
-    .isLength({ min: 10 }).withMessage("ID Number must be at least 10 characters")
-    .custom(value => {
-        // Basic check to ensure it looks like a number
-        if (!/^\d+$/.test(value)) {
-            throw new Error('ID Number must only contain digits');
-        }
-        return true;
-    }),
- 
-  // 💡 New: Validate accountNumber
+    .isLength({ min: 10, max: 13 }).withMessage("ID Number must be between 10 and 13 digits")
+    .matches(/^\d+$/).withMessage("ID Number must only contain digits"),
+
+  // Whitelist accountNumber (digits only)
   body("accountNumber")
     .isString().withMessage("Account Number must be a string")
-    .isLength({ min: 5 }).withMessage("Account Number must be at least 5 characters")
-    .custom(value => {
-        // Basic check to ensure it looks like a number
-        if (!/^\d+$/.test(value)) {
-            throw new Error('Account Number must only contain digits');
-        }
-        return true;
-    }),
- 
-  // Password validation (unchanged)
+    .isLength({ min: 5, max: 20 }).withMessage("Account Number must be between 5 and 20 digits")
+    .matches(/^\d+$/).withMessage("Account Number must only contain digits"),
+
+  // Password validation 
   passwordStrength
 ];
- 
+
 // -----------------------------------------------------------
-// Login Rules: Use idNumber for login lookup
+// Login Rules
 // -----------------------------------------------------------
 const loginRules = [
-  // 💡 Updated: Use idNumber instead of email for login identifier
+  // Whitelist ID Number again for login
   body("idNumber")
     .isString().withMessage("ID Number is required for login")
-    .notEmpty().withMessage("ID Number cannot be empty"),
- 
-  // Password validation (simple check for login)
+    .notEmpty().withMessage("ID Number cannot be empty")
+    .matches(/^\d+$/).withMessage("ID Number must only contain digits"),
+
+  // Whitelist password
   body("password")
-    .isString().notEmpty().withMessage("Password is required"),
+    .isString().notEmpty().withMessage("Password is required")
+    .matches(/^[A-Za-z0-9!@#$%^&*()_+=-]+$/).withMessage("Password contains invalid characters")
 ];
- 
+
 module.exports = { registerRules, loginRules };
- 
-
-// const { body } = require("express-validator");
-
-// // Regex definitions
-// const fullNameRegex = /^[A-Za-z\s]+$/;      // letters and spaces only
-// const idNumberRegex = /^\d{13}$/;           // exactly 13 digits
-// const accountNumberRegex = /^\d+$/;         // numbers only
-// const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/; // min 8 chars, letters and numbers
-
-// // Full Name validation
-// const fullNameField = body("fullName")
-//   .trim()
-//   .matches(fullNameRegex)
-//   .withMessage("Full name must contain letters and spaces only")
-//   .isLength({ min: 3, max: 50 })
-//   .withMessage("Full name must be between 3 and 50 characters")
-//   .escape();
-
-// // ID Number validation
-// const idNumberField = body("idNumber")
-//   .trim()
-//   .matches(idNumberRegex)
-//   .withMessage("ID number must be exactly 13 digits")
-//   .escape();
-
-// // Account Number validation
-// const accountNumberField = body("accountNumber")
-//   .trim()
-//   .matches(accountNumberRegex)
-//   .withMessage("Account number must contain only numbers")
-//   .isLength({ min: 4, max: 20 })
-//   .withMessage("Account number must be between 4 and 20 digits")
-//   .escape();
-
-// // Password validation
-// const passwordStrength = body("password")
-//   .isString()
-//   .matches(passwordRegex)
-//   .withMessage("Password must be at least 8 characters and include at least one letter and one number")
-//   .not()
-//   .matches(/<|>|"|'/)
-//   .withMessage("Invalid characters in password");
-
-// // Register rules
-// const registerRules = [fullNameField, idNumberField, accountNumberField, passwordStrength];
-
-// // Login rules (by default, login uses ID number and password)
-// const loginRules = [
-//   body("idNumber")
-//     .trim()
-//     .matches(idNumberRegex)
-//     .withMessage("ID number must be exactly 13 digits"),
-//   body("password")
-//     .isString()
-//     .notEmpty()
-//     .withMessage("Password is required")
-// ];
-
-// module.exports = { registerRules, loginRules };
-
-
-// const { body } = require("express-validator");
-
-// // Regex definitions
-// const fullNameRegex = /^[A-Za-z\s]+$/;      // letters and spaces only
-// const idNumberRegex = /^\d{13}$/;           // exactly 13 digits
-// const accountNumberRegex = /^\d+$/;         // numbers only
-// const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/; // min 8 chars, letters and numbers
-
-// // Full Name validation
-// const fullNameField = body("fullName")
-//   .trim()
-//   .matches(fullNameRegex)
-//   .withMessage("Full name must contain letters and spaces only")
-//   .isLength({ min: 3, max: 50 })
-//   .withMessage("Full name must be between 3 and 50 characters")
-//   .escape();
-
-// // ID Number validation
-// const idNumberField = body("idNumber")
-//   .trim()
-//   .matches(idNumberRegex)
-//   .withMessage("ID number must be exactly 13 digits")
-//   .escape();
-
-// // Account Number validation
-// const accountNumberField = body("accountNumber")
-//   .trim()
-//   .matches(accountNumberRegex)
-//   .withMessage("Account number must contain only numbers")
-//   .isLength({ min: 4, max: 20 })
-//   .withMessage("Account number must be between 4 and 20 digits")
-//   .escape();
-
-// // Password validation
-// const passwordStrength = body("password")
-//   .isString()
-//   .matches(passwordRegex)
-//   .withMessage("Password must be at least 8 characters and include at least one letter and one number")
-//   .not()
-//   .matches(/<|>|"|'/)
-//   .withMessage("Invalid characters in password");
-
-// // Register rules
-// const registerRules = [fullNameField, idNumberField, accountNumberField, passwordStrength];
-
-// // Login rules (by default, login uses ID number and password)
-// const loginRules = [
-//   body("idNumber")
-//     .trim()
-//     .matches(idNumberRegex)
-//     .withMessage("ID number must be exactly 13 digits"),
-//   body("password")
-//     .isString()
-//     .notEmpty()
-//     .withMessage("Password is required")
-// ];
-
-// module.exports = { registerRules, loginRules };

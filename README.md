@@ -16,8 +16,9 @@ CONTENTS:
      - CREDITS..............................8
      - GITHUB LINK..........................9
      - YOUTUBE LINK.........................10
-     - TEST ADMIN USER LOGIN DETAILS........11
-     - REFERENCES...........................12
+	 - SONARQUBE LINK.......................11
+     - TEST ADMIN USER LOGIN DETAILS........12
+     - REFERENCES...........................13
 
 
 1. REQUIREMENTS + PREREQUISITES 
@@ -152,14 +153,18 @@ This group project was completed as part of the INSY7314 Module.
 
         https://youtu.be/Cd9Ov8AvtGQ
 
-11. TEST ADMIN USER LOGIN DETAILS:
+11. SONARQUBE LINK:
+
+		https://sonarcloud.io/dashboard?id=ST10260507_POE_INSY7314&organization=Ankriya
+
+12. TEST ADMIN USER LOGIN DETAILS:
 
         Full Name:  bod
         National ID number: 9907065202081
         Account Number: 1298312938
         Password: JoshIsCool1
 
-12. REFERENCES
+13. REFERENCES
     
         - Cloudflare (2024). What is an SSL Certificate? | How to Get a Free SSL Certificate | Cloudflare. Cloudflare. [online] Available at: https://www.cloudflare.com/learning/ssl/what-is-an-ssl-certificate/ [Accessed 10 Oct. 2025].
         - GeeksforGeeks (2024). Rate Limiting Algorithms System Design. [online] GeeksforGeeks. Available at: https://www.geeksforgeeks.org/system-design/rate-limiting-algorithms-system-design/ [Accessed 10 Oct. 2025].

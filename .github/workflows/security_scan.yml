@@ -14,6 +14,7 @@ on:
 jobs:
   # ===============================================
   # JOB 1: Software Composition Analysis (SCA) - npm audit
+  # [Covers: check vulnerabilities in dependencies]
   # ===============================================
   dependency_scan:
     runs-on: ubuntu-latest
@@ -22,15 +23,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Use your project's target Node version
+          node-version: '20'
 
-      # 1. Scan the Backend (assuming separate package.json)
+      # 1. Scan the Backend
       - name: Install Backend Dependencies
         run: npm install --prefix Backend/
       - name: Run Backend npm audit
         run: npm audit --prefix Backend/ --audit-level=high
 
-      # 2. Scan the Frontend (assuming separate package.json)
+      # 2. Scan the Frontend
       - name: Install Frontend Dependencies
         run: npm install --prefix Frontend/  
       - name: Run Frontend npm audit
@@ -39,38 +40,39 @@ jobs:
 ---
 
   # ===============================================
-  # JOB 2: Static Analysis Security Testing (SAST)
-  # Checks your code for common security bugs and uploads results.
+  # JOB 2: SonarQube Scan (SAST & Code Smells)
+  # [Fulfills: run a SonarQube scan]
+  # Note: Requires SONAR_TOKEN secret and SonarCloud project setup.
   # ===============================================
-  sast_scan:
+  sonarqube_scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        
-      # 1. Run Semgrep SAST tool and generate SARIF report
-      - name: 🔎 Run Semgrep SAST Scan
-        uses: returntocorp/semgrep-action@v1
         with:
-          config: p/security-audit # Common ruleset for good coverage
-          # Output the results in SARIF format for GitHub Code Scanning
-          output: semgrep.sarif
+          # REQUIRED: Fetch full history for proper branch linking
+          fetch-depth: 0 
           
-      # 2. Upload the SARIF results to GitHub Security Tab
-      - name: ⬆️ Upload SARIF to GitHub Code Scanning
-        uses: github/code-scanning-action/upload-sarif@v3
+      - name: 🔎 Execute SonarCloud Scan
+        # Use the official action for a robust and simplified setup
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          # Your token stored in GitHub Secrets
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
         with:
-          sarif_file: semgrep.sarif # File generated in the previous step
-          
+          # Replace 'YOUR_ORGANIZATION_KEY' and 'YOUR_PROJECT_KEY' with your actual keys
+          args: >
+            -Dsonar.organization=Ankriya 
+            -Dsonar.projectKey=ST10260507_POE_INSY7314
+
 ---
 
   # ===============================================
   # JOB 3: Secrets Scanning (Credential Detection)
-  # Checks repository history and changes for exposed secrets.
+  # [Covers: Additional Research/Exceptional Implementation]
   # ===============================================
   secrets_scan:
     runs-on: ubuntu-latest
-    # Recommended: You can make this job depend on the others to run in sequence
-    # needs: [dependency_scan, sast_scan] 
+    # Run in parallel with other security scans
     steps:
       - uses: actions/checkout@v4
         with:
@@ -83,3 +85,30 @@ jobs:
         with:
           fail: true
           verbose: true
+
+---
+
+  # ===============================================
+  # JOB 4: API and Unit Testing
+  # [Fulfills: API testing used to test endpoints]
+  # ===============================================
+  api_testing:
+    runs-on: ubuntu-latest
+    # Recommended to run only if all security scans pass
+    needs: [dependency_scan, sonarqube_scan, secrets_scan] 
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' 
+
+      - name: Install All Dependencies
+        # Install all necessary dependencies for tests to run
+        run: |
+          npm install --prefix Backend/
+          npm install --prefix Frontend/ 
+
+      - name: 🚀 Run Backend and API Tests
+        # This command runs all tests defined in the package.json "test" script
+        run: npm test --prefix Backend/

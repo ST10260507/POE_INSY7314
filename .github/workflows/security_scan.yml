@@ -13,7 +13,7 @@ on:
 
 jobs:
   # ===============================================
-  # JOB 1: Dependency Vulnerability Check (npm audit)
+  # JOB 1: Software Composition Analysis (SCA) - npm audit
   # ===============================================
   dependency_scan:
     runs-on: ubuntu-latest
@@ -24,37 +24,62 @@ jobs:
         with:
           node-version: '20' # Use your project's target Node version
 
-      # 1. Scan the Backend (using capital 'Backend')
+      # 1. Scan the Backend (assuming separate package.json)
       - name: Install Backend Dependencies
         run: npm install --prefix Backend/
       - name: Run Backend npm audit
         run: npm audit --prefix Backend/ --audit-level=high
 
-      # 2. Scan the Frontend (using capital 'Frontend')
+      # 2. Scan the Frontend (assuming separate package.json)
       - name: Install Frontend Dependencies
         run: npm install --prefix Frontend/  
       - name: Run Frontend npm audit
-        run: npm audit --prefix Frontend/ --audit-level=high 
+        run: npm audit --prefix Frontend/ --audit-level=high  
 
 ---
 
   # ===============================================
   # JOB 2: Static Analysis Security Testing (SAST)
-  # Checks your code for common security bugs.
+  # Checks your code for common security bugs and uploads results.
   # ===============================================
   sast_scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      # Using Semgrep SAST tool
-      - name: Run Semgrep SAST Scan
+        
+      # 1. Run Semgrep SAST tool and generate SARIF report
+      - name: 🔎 Run Semgrep SAST Scan
         uses: returntocorp/semgrep-action@v1
         with:
-          # Scans for common security issues relevant to your project's languages
-          config: p/security-audit
+          config: p/security-audit # Common ruleset for good coverage
+          # Output the results in SARIF format for GitHub Code Scanning
+          output: semgrep.sarif
           
-      # Fail the build explicitly if the SAST tool finds issues
-      - name: Check SAST Results
-        if: failure()
-        run: echo "Semgrep found security issues. Inspect the results on GitHub Actions." && exit 1
+      # 2. Upload the SARIF results to GitHub Security Tab
+      - name: ⬆️ Upload SARIF to GitHub Code Scanning
+        uses: github/code-scanning-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep.sarif # File generated in the previous step
+          
+---
+
+  # ===============================================
+  # JOB 3: Secrets Scanning (Credential Detection)
+  # Checks repository history and changes for exposed secrets.
+  # ===============================================
+  secrets_scan:
+    runs-on: ubuntu-latest
+    # Recommended: You can make this job depend on the others to run in sequence
+    # needs: [dependency_scan, sast_scan] 
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # CRITICAL: Fetch full history for accurate secrets detection
+          fetch-depth: 0 
+
+      - name: 🔑 Run GitLeaks Secrets Scan
+        # This action automatically scans and fails the job if any secrets are found
+        uses: zricethezav/gitleaks-action@v9
+        with:
+          fail: true
+          verbose: true

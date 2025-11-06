@@ -99,8 +99,8 @@ export default function Navbar() {
           {userRole === "admin" && (
             <>
               <Link to="/transactions">Transactions</Link>
-              <Link to="/register-admin">Register Admin</Link>
-              <Link to="/admin-list">Admin List</Link>
+             {/* <Link to="/register-admin">Register Admin</Link> */}
+             {/*} <Link to="/admin-list">Admin List</Link>*/}
               <Link to="/security-demo">Security Demo</Link>
             </>
           )}

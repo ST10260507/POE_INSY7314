@@ -1,7 +1,7 @@
-INSY7314 TASK 2 README - Secure Customer International Payments Portal
+INSY7314 POE FINAL README - Secure Customer International Payments Portal (Customer and Employee)
 
 INTRODUCTION:
-The Secure Customer International Payments Portal is a critical component of an international bank's internal development project. It serves as the primary, public-facing interface for customers to initiate secure international money transfers. The core mandate of this component is to enforce rigorous security standards, including hashing and salting, input whitelisting via RegEx, and SSL communication, across all customer interactions, from registration to final payment submission. 
+The Secure Customer International Payments Portal is the final integrated solution for the international bank's internal development project. It comprises two main components: the public-facing Customer Portal (for initiating secure transfers) and the internal Employee Portal (for reviewing and approving those transfers). The core mandate is the enforcement of rigourous security standards, including those hashing and salting, RegEx input whitelisting, and mandatory SSL communication, and the implementation of a robust DevSecOps pipeline to ensure code qualtiy and security assurance across the entire application lifecycle.  
 
 
 CONTENTS:
@@ -25,28 +25,31 @@ CONTENTS:
 
      REQS (Technologies to be installed)
      
-     	- Node.js and npm (for React frontend development and the Custom Backend API)
-     	- React Development Environment (e.g., VS Code with relevant extensions)
-     	- Git (for version control)
-     	- Backend Runtime (e.g., Node.js/Express, or a stack that supports MongoDB drivers)
-    	- MongoDB Compass or Atlas CLI (for database setup and management)
-    	- OBS Studio or a similar screen recording tool (for video submission)
+     - Node.js and npm
+     - React Development Environment
+     - Git (for version control)
+     - Backend Runtime
+     - MongoDB Compass or Atlas CLI 
+     - OBS Studio or a similar screen recording tool
+     - Circle CI CLI
+     - SonarCloud/SonarQube Integration
+   
 
      PREREQUISITES (External Setup)
      
-        1. SSL Certificate Setup   
-    	    - A valid SSL certificate must be configured for both the API and the development environment to ensure all traffic is served over HTTPS, meeting the security mandate
-    
-        2. MongoDB Setup:
-    	    - A MongoDB database instance (local or Atlas) must be running.
-          - A database and collections (e.g., customers, transactions) must be prepared to securely store customer credentials (hashed and salted) and initial transaction records.
-    
-        3. Backend API Configuration:
-    	    - The API must be configured with a MongoDB Connection String.
-          - It must use a secure hashing algorithm (e.g., bcrypt) for password storage.
-          - Secure secret keys (e.g., for JWT generation) must be defined as environment variables.
+   1. SSL Certificate Setup
+      - A valid SSL certificate must be configured for both the API and the development environment to ensure all traffic is served over HTTPS, meeting the security mandate
+   2. MongoDB Setup:
+      - A MongoDB database instance (local or Atlas) must be running.
+      - A database and collections (e.g., customers, transactions) must be prepared to securely store customer credentials (hashed and salted) and initial transaction records.
+   3. Backend API Configuration:
+      - The API must be configured with a MongoDB Connection String.
+      - It must use a secure hashing algorithm (e.g., bcrypt) for password storage.
+      - Secure secret keys (e.g., for JWT generation) must be defined as environment variables.
+    4. DevSecOps Pipeline Setup:
+       - The Github repository must be linked to CircleCI and configured to run the security and quality checks upon code pushes, with results reported to SonarQube.
 
-2. GETTING STARTED:
+3. GETTING STARTED:
    
     Step-by-Step Setup:
       1. Clone the Repository:
@@ -56,26 +59,22 @@ CONTENTS:
         	cd POE_INSY7314
 
       2. Set Up the Backend API:
-         
-    	- Navigate to the API folder (e.g., src/api).
-    	- Run dependency installation: [Your API Dependency Command, e.g., npm install].
-    	- Update the MongoDB Connection String and configure HTTPS/SSL settings in the API configuration files.
-    	- Run the server: [Your API Run Command].
-
+         - Navigate to the API folder (e.g., src/api).
+         - Run dependency installation: [Your API Dependency Command, e.g., npm install].
+         - Update the MongoDB Connection String and configure HTTPS/SSL settings in the API configuration files.
+         - Run the server: [Your API Run Command].
 
       3. Set Up the Customer Portal (React Frontend):
-     
-    	- Navigate to the client folder (e.g., src/client/customer-portal).
-    	- Install dependencies: npm install.
-    	- Update the API base URL in the environment configuration to point to your secure (HTTPS) API endpoint.
-
-      4. Database Initialisation (MongoDB):
-         
+         - Navigate to the client folder (e.g., src/client/customer-portal).
+         - Install dependencies: npm install.
+         - Update the API base URL in the environment configuration to point to your secure (HTTPS) API endpoint.
+      4. Set up the EMployee Portal (React Frontend):
+         - Navigate to the employee folder
+         - Install dependencies: npm install
+         - Update the API base URL to point to your secure (HTTPS) API endpoint.
+      5. Database Initialisation (MongoDB):
     	- Ensure the MongoDB instance is running and accessible via the connection string defined in the API.
-    	- The application will typically create collections upon the first interaction, but schema indexes should be pre-defined for performance and security.
-
-      5. Build and Run:
-   
+      6. Build and Run:
     	- In the React directory, run: npm start.
     	- The secure Customer Portal should open in your browser, accessing the backend via HTTPS.
 
@@ -83,7 +82,6 @@ CONTENTS:
 4. USAGE:
 
     USER:
-   
     	- Registration: Navigate to the Register screen. Input full name, ID number, account number, and choose a strong password. The system uses RegEx to validate all fields before the API saves the hashed data to MongoDB.
     	- Login: Input the registered full name, ID number, account number, and password in the fields on the Login screen to gain authenticated access. The API verifies the credentials against the hashed data in MongoDB.
     	- Payment Initiation: Once logged in, enter the amount and select the currency. Provide the payee's account details and the required SWIFT code.

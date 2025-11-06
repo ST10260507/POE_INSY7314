@@ -79,68 +79,63 @@ CONTENTS:
     	- The secure Customer Portal should open in your browser, accessing the backend via HTTPS.
 
 
-4. USAGE:
+3. USAGE:
+   
+USER:
+   - Registration: Navigate to the Register screen. Input full name, ID number, account number, and choose a strong password. The system uses RegEx to validate all fields before the API saves the hashed data to MongoDB.
+   - Login: Input the registered full name, ID number, account number, and password in the fields on the Login screen to gain authenticated access. The API verifies the credentials against the hashed data in MongoDB.
+   - Payment Initiation: Once logged in, enter the amount and select the currency. Provide the payee's account details and the required SWIFT code.
+   - Final Submission: Click "Submit" to securely submit the validated transaction request to the API, where it is stored as a new document in the MongoDB transactions collection.
 
-    USER:
-    	- Registration: Navigate to the Register screen. Input full name, ID number, account number, and choose a strong password. The system uses RegEx to validate all fields before the API saves the hashed data to MongoDB.
-    	- Login: Input the registered full name, ID number, account number, and password in the fields on the Login screen to gain authenticated access. The API verifies the credentials against the hashed data in MongoDB.
-    	- Payment Initiation: Once logged in, enter the amount and select the currency. Provide the payee's account details and the required SWIFT code.
-    	- Final Submission: Click "Submit" to securely submit the validated transaction request to the API, where it is stored as a new document in the MongoDB transactions collection.
-
-    ADMIN:
-    
-          - Login: Login to the app using the already set up login details. This can be found in the ' 11. TEST ADMIN USER LOGIN DETAILS'
-          - Transactions: The admin can view transactions and approve or reject them
-
+ADMIN:
+  - Login: Login to the app using the already set up login details. This can be found in the ' 11. TEST ADMIN USER LOGIN DETAILS'
+  -  Transactions: The admin can view transactions and approve or reject them
+  - Approval Workflow: The portal allows the employee to approve or reject transactions, completing the secure international payment workflow
       
-6. KEY FEATURES:
-
-    	- Secure Customer Registration: Collects sensitive data and securely stores credentials using Hashing and Salting in MongoDB.
-    	- Robust Password Security: Hashing and Salting are enforced on the backend to protect customer credentials stored in the NoSQL database.
-    	- Strict Input Validation: Utilizes RegEx patterns to validate every input field on the API, ensuring data integrity and mitigating threats before saving to MongoDB.
-    	- SWIFT-Ready Submission: The system collects all required international payment details.
-    	- NoSQL Transaction Persistence: Successfully initiated payments are stored immediately as secure documents in a MongoDB collection, awaiting employee verification.
+4. KEY FEATURES:
+   - Secure Customer Registration: Collects sensitive data and securely stores credentials using Hashing and Salting in MongoDB.
+   - Robust Password Security: Hashing and Salting are enforced on the backend to protect customer credentials stored in the NoSQL database.
+   - Strict Input Validation: Utilizes RegEx patterns to validate every input field on the API, ensuring data integrity and mitigating threats before saving to MongoDB.
+   - SWIFT-Ready Submission: The system collects all required international payment details.
+   - NoSQL Transaction Persistence: Successfully initiated payments are stored immediately as secure documents in a MongoDB collection, awaiting employee verification.
+   - Secure Employee Portal (Admin): Dedicated interface for bank staff to manage the payment queue.
+   - Transaction Review and Approval Workflow: Enables bank staff to view, approve, or reject submitted customer payments
+   - Pre-configured Static Login: Enforces security for internal staff by eliminating the employee registration process, ensuring only pre-authorised accounts can access the internal system.
 
 7. NON-FUNCTIONAL REQUIREMENTS:
-
-    	- Security (Primary): Meets the mandatory requirements for SSL/TLS (HTTPS), Hashing and Salting, RegEx Input Whitelisting, and general protection against known web attacks (e.g., XSS, NoSQL Injection, authentication bypass).
-    	- Maintainability: Built with modular components (React for frontend, RESTful API for backend) and uses a flexible NoSQL structure (MongoDB) for easy updates and maintenance.
-    	- Performance: Optimized API endpoints and efficient MongoDB queries ensure quick registration, login, and transaction submission times.
-    	- Usability (UX): A clear, intuitive interface that guides the customer through the secure registration and payment initiation process.
+- Security (Primary): Meets the mandatory requirements for SSL/TLS (HTTPS), Hashing and Salting, RegEx Input Whitelisting, and general protection against known web attacks (e.g., NoSQL Injection).
+- DevSecOpsPipeline (CI/CD): A configured CircleCI pipeline is triggered upon code push. This pipeline automatically runs:
+	- Static Application Testing (SAST): via SonarQube to check for vulnerabilities, hotspots, and code smells
+ 	- Software composition Analysis (SCA) to check for vulnerabilities, hotspots, and code smells
+  	- Basic API security Testing. 
+- Maintainability: Built with modular components (React for frontend, RESTful API for backend) and uses a flexible NoSQL structure (MongoDB) for easy updates and maintenance.
+- Performance: Optimized API endpoints and efficient MongoDB queries ensure quick registration, login, and transaction submission times.
+- Usability (UX): A clear, intuitive interface that guides the customer through the secure registration and payment initiation process.
     
-8. ARCHITECTURE:
-
-       The Customer Portal utilizes a secure three-tier architecture:
-      	- Frontend: The Customer Portal is a single-page application built with React.js. It handles user input and communicates exclusively with the backend API via HTTPS.
-      	- Backend/API: A RESTful API built with Node.js.
-	    - Role: Enforces RegEx validation, performs password hashing/salting, handles business logic, and manages secure communication with the database.
-	    - Database: MongoDB is used to store all persistent data. Customer credentials (hashed) and transaction documents are stored securely in dedicated collections.
-	    - Security Layer (Protocol): SSL/TLS secures the communication channel between the React client and the API.
+6. ARCHITECTURE:
+The Customer Portal utilizes a secure three-tier architecture:
+   - Frontend: The Customer Portal is a single-page application built with React.js. It handles user input and communicates exclusively with the backend API via HTTPS.
+   - Backend/API: A RESTful API that enforces RegEx validation, performs password hashing/salting, and manages secure communication within the database
+   - Database: MongoDB is used to store all persistent data. Customer credentials (hashed) and transaction documents are stored securely in dedicated collections.
+   - Security Layer (Protocol): SSL/TLS secures the communication channel between the React client and the API.
    
 9. FAQs:
-
-   Q: Where is the customer's payment information stored?
-
-	    A: All sensitive data, including transaction details, is stored as a secure document in a MongoDB collection upon clicking "Submit," accessible only to the pre-registered bank staff via the internal portal .
-
-   Q: How is my password protected?
-
-	    A: Your password is never stored in plain text. It is secured on the backend using an industry-standard combination of hashing and salting before being saved to MongoDB, as mandated by the security requirements.
-
-   Q: How do you protect against attacks?
-
-	    A: Protection is multi-layered: HTTPS encrypts traffic; RegEx validation prevents malicious input; and security practices like secure handling of MongoDB queries and proper use of hashing are implemented to prevent injection and authentication vulnerabilities.
+- Q: Where is the customer's payment information stored?
+	- A: All sensitive data, including transaction details, is stored as a secure document in a MongoDB collection upon clicking "Submit," accessible only to the pre-registered bank staff via the internal portal .
+- Q: How is my password protected?
+	- A: Your password is never stored in plain text. It is secured on the backend using an industry-standard combination of hashing and salting before being saved to MongoDB, as mandated by the security requirements.
+- Q: How do you protect against attacks?
+	- A: Protection is multi-layered: HTTPS encrypts traffic; RegEx validation prevents malicious input; and security practices like secure handling of MongoDB queries and proper use of hashing are implemented to prevent injection and authentication vulnerabilities.
 
 
 10. CREDITS:
 
 This group project was completed as part of the INSY7314 Module.
-
-     - Joshua De Wet – ST10313014
-     - Ankriya Padayachee – ST10260507
-     - Cade Gamble – ST10262209
-     - Kyle Govender – ST10145498
-     - Dinaley Mc Murray – ST10249944
+- Joshua De Wet – ST10313014
+- Ankriya Padayachee – ST10260507
+- Cade Gamble – ST10262209
+- Kyle Govender – ST10145498
+- Dinaley Mc Murray – ST10249944
 
 
 9. GITHUB LINK:
